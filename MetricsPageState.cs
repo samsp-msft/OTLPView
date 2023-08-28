@@ -16,4 +16,40 @@ public class MetricsPageState
             _page.Update();
     }
 
+    private ServiceMetrics _selectedService;
+    public ServiceMetrics SelectedService {
+        get        {return _selectedService;}
+        
+        set
+        {
+            _selectedService = value;
+            _page.Update();
+        }
+    }
+
+
+    private MeterResult _selectedMeter;
+    public MeterResult SelectedMeter
+    {
+        get { return _selectedMeter; }
+
+        set
+        {
+            _selectedMeter = value;
+            _page.Update();
+        }
+    }
+
+
+    private Counter _selectedMetric;
+    public Counter SelectedMetric
+    {
+        get { return _selectedMetric; }
+
+        set
+        {
+            _selectedMetric = value;
+            _page.Update();
+        }
+    }
 }

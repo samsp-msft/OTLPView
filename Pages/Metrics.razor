@@ -4,52 +4,176 @@
 
 <PageTitle>Metrics</PageTitle>
 
-<h1>Metrics</h1>
-
-@foreach (var service in telemetryResults.ServiceMetrics.Values)
-{
-    <div class="ServiceTitleBlock">
-        <h2>@service.ServiceName</h2>
-        <div class="ServiceDescription">@service.ServiceDescription</div>
+<div class="MetricsTree">
+    <div class="ServicesList">
+        <div class="ServicesListTitle">
+            <h2>Services</h2>
+        </div>
+        <div class="ServicesListContents">
+            @foreach (var service in telemetryResults.ServiceMetrics.Values)
+            {
+                <div class="@IsServiceSelected(service,"ServicesListItem")" @onclick="@(_ => SelectService(service))">
+                    <h3>@service.ServiceName</h3>
+                    <table class="ServiceDescription">
+                        <tdata>
+                            @foreach (var p in service.Properties)
+                            {
+                                <tr>
+                                    <td class="Property">@p.Key:</td>
+                                    <td class="Value">@p.Value</td>
+                                </tr>
+                            }
+                        </tdata>
+                    </table>
+                </div>
+            }
+        </div>
     </div>
-    <div class="ServiceContents">
-        @foreach (var m in service.Meters.Values)
+    <div class="MeterList">
+        <div class="MeterListTitle">
+            <h2>Meters</h2>
+        </div>
+        @if (state.SelectedService is not null)
         {
-            <div class="MeterBlock">
-                <h3>@m.MeterName</h3>
-                @foreach (var cnt in m.Counters.Values)
+            <div class="MeterListContents">
+                @foreach (var m in state.SelectedService?.Meters.Values)
                 {
-                    <div class="CounterBlock">
-                        <h4 class="CounterName">@cnt.CounterName</h4>
-                        <div class="CounterDetails">
-                            <span>@cnt.CounterDescription</span>
-                            <span>@cnt.CounterUnit</span>
-                        </div>
-                        <div class="CounterContents">
-                        @foreach (var Dimension in cnt.Dimensions.Values)
-                        {
-                            <DimensionedCounterView Dimension="@Dimension" />
-                        }
-                        </div>
+                    <div class="@IsMeterSelected(m,"MeterListItem")" @onclick="@(_ => SelectMeter(m))">
+                        <h3>@m.MeterName</h3>
+                        <table class="MeterDescription">
+                            <tdata>
+                                @if (!string.IsNullOrEmpty(m.Version))
+                                {
+                                    <tr>
+                                        <td class="Property">Version:</td>
+                                        <td class="Value">@m.Version</td>
+
+                                    </tr>
+                                }
+                                @foreach (var p in m.Properties)
+                                {
+                                    <tr>
+                                        <td class="Property">@p.Key:</td>
+                                        <td class="Value">@p.Value</td>
+                                    </tr>
+                                }
+                            </tdata>
+                        </table>
                     </div>
                 }
             </div>
         }
-        <div>
+    </div>
+    <div class="MetricList">
+        <div class="MetricListTitle">
+            <h2>Metrics</h2>
+        </div>
+        <div class="MetricListContents">
+            @foreach (var cnt in state.SelectedMeter?.Counters.Values)
+            {
+                <div class="@IsMetricSelected(cnt,"MetricListItem" )" @onclick="@(_ => SelectMetric(cnt))">
+                    <h3 class="CounterName">@cnt.CounterName</h3>
+                </div>
+            }
         </div>
     </div>
-}
+</div>
+<div class="MetricDetails">
+    <div class="MetricDetailsTitle">
+        <h2>Metric Values</h2>
+    </div>
+    <div class="CounterBlock">
+        <h4 class="CounterName">@state.SelectedMetric.CounterName</h4>
+        <div class="CounterDetails">
+            <div>
+                <span class="Property">Unit: </span>
+                <span class="Value">@state.SelectedMetric.CounterUnit</span>
+                <span class="Property">Description:</span>
+                <span class="Value">@state.SelectedMetric.CounterDescription</span>
+            </div>
+        </div>
+        <div class="CounterContents">
+            @foreach (var Dimension in state.SelectedMetric.Dimensions.Values)
+            {
+                <DimensionedCounterView Dimension="@Dimension" />
+            }
+        </div>
+    </div>
 
+</div>
 @code {
 
     protected override void OnInitialized()
     {
         state.SetPage(this);
+        UpdateSelectedService();
+        UpdateSelectedMeter();
+        UpdateSelectedMetric();
     }
 
 
     public void Update()
     {
+        UpdateSelectedService();
+        UpdateSelectedMeter();
+        UpdateSelectedMetric();
         InvokeAsync(() => StateHasChanged());
     }
+
+
+    public void UpdateSelectedService()
+    {
+        if (state.SelectedService is null)
+        {
+            if (telemetryResults.ServiceMetrics.Count > 0)
+            {
+                state.SelectedService = telemetryResults.ServiceMetrics.Values.First();
+            }
+        }
+    }
+
+    public void UpdateSelectedMeter()
+    {
+        if (state.SelectedMeter is null)
+        {
+            if (state.SelectedService?.Meters.Count > 0)
+            {
+                state.SelectedMeter = state.SelectedService.Meters.Values.First();
+            }
+        }
+    }
+
+    public void UpdateSelectedMetric()
+    {
+        if (state.SelectedMetric is null)
+        {
+            if (state.SelectedMeter?.Counters.Count > 0)
+            {
+                state.SelectedMetric = state.SelectedMeter.Counters.Values.First();
+            }
+        }
+    }
+
+    public void SelectService(ServiceMetrics s)
+    {
+        state.SelectedService = s;
+        state.SelectedMeter = state.SelectedService.Meters.Values.First();
+    }
+
+    public string IsServiceSelected(ServiceMetrics o, string cssClass) => cssClass + ((state.SelectedService == o) ? " Selected" : "");
+
+    public void SelectMeter(MeterResult m)
+    {
+        state.SelectedMeter = m;
+        state.SelectedMetric = state.SelectedMeter.Counters.Values.First();
+    }
+
+    public string IsMeterSelected(MeterResult o, string cssClass) => cssClass + ((state.SelectedMeter == o) ? " Selected" : "");
+
+    public void SelectMetric(Counter c)
+    {
+        state.SelectedMetric = c;
+    }
+
+    public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
 }

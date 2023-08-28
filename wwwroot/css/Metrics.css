@@ -1,4 +1,140 @@
-﻿.ServiceTitleBlock {
+﻿.MetricsTree {
+    display: block;
+    left: 260px;
+    width: 300px;
+    position: fixed;
+    top: 80px;
+    height: 100%;
+}
+
+.MetricDetails {
+    display: block;
+    margin-left: 300px;
+    margin-top: 0px;
+    right: 0px;
+}
+
+.ServicesList {
+    display: block;
+    height: 40%;
+}
+
+.ServicesListTitle h2 {
+    font-size: 12pt;
+    margin: 4px 4px 1px 1px;
+}
+
+.ServicesListContents {
+    border: 1px solid darkgray;
+    padding: 2px;
+    height:max-content;
+}
+
+.ServicesListItem {
+    padding: 2px;
+}
+
+    .ServicesListItem.Selected {
+        background-color: #4d5788;
+    }
+
+    .ServicesListItem:hover {
+        background-color: #f2f2f2;
+    }
+
+.ServicesListItem h3 {
+    font-size: 12pt;
+    margin: 4px 4px 1px 1px;
+}
+
+.MeterList {
+    display: block;
+    height: 20%;
+}
+
+.MeterListTitle h2 {
+    font-size: 12pt;
+    margin: 4px 4px 1px 1px;
+}
+
+.MeterListContents {
+    border: 1px solid darkgray;
+    padding: 2px;
+    height: max-content;
+}
+
+.MeterListItem {
+    padding: 2px;
+}
+
+    .MeterListItem h3 {
+        font-size: 12pt;
+        margin: 4px 4px 1px 1px;
+    }
+
+.MeterListItem.Selected {
+    background-color: #4d5788;
+}
+
+.MeterListItem:hover {
+    background-color: #f2f2f2;
+}
+
+
+.MetricList {
+    display: block;
+    height: 40%;
+}
+
+.MetricListTitle h2 {
+    font-size: 12pt;
+    margin: 4px 4px 1px 1px;
+}
+
+.MetricListContents {
+    border: 1px solid darkgray;
+    padding: 2px;
+    height: max-content;
+}
+
+.MetricListItem {
+    padding: 2px;
+}
+
+    .MetricListItem h3 {
+        font-size: 12pt;
+        margin: 4px 4px 1px 1px;
+    }
+
+    .MetricListItem.Selected {
+        background-color: #4d5788;
+    }
+
+    .MetricListItem:hover {
+        background-color: #f2f2f2;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.ServiceTitleBlock {
     background-color: antiquewhite;
 }
 
@@ -31,7 +167,6 @@
 }
 
 .CounterDetails {
-    display: inline-block;
     font-size: smaller;
 }
 
