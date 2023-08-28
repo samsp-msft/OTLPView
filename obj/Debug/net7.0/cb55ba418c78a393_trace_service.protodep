@@ -1,0 +1,5 @@
+obj\Debug\net7.0\opentelemetry\proto\collector\trace\v1/TraceService.cs \
+obj\Debug\net7.0\opentelemetry\proto\collector\trace\v1/TraceServiceGrpc.cs: otlp/opentelemetry/proto/common/v1/common.proto\
+ otlp/opentelemetry/proto/resource/v1/resource.proto\
+ otlp/opentelemetry/proto/trace/v1/trace.proto\
+ otlp/opentelemetry/proto/collector/trace/v1/trace_service.proto

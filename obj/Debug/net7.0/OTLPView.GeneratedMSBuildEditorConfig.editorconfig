@@ -1,0 +1,63 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = OTLPView
+build_property.RootNamespace = OTLPView
+build_property.ProjectDir = C:\Users\samsp\Source\Repos\OTLPView\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\samsp\Source\Repos\OTLPView
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Pages/Metrics.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWV0cmljcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Pages/Traces.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVHJhY2VzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Shared/DimensionedCounterView.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXERpbWVuc2lvbmVkQ291bnRlclZpZXcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Shared/TraceSpanView.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFRyYWNlU3BhblZpZXcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-wwv7bb77a1
+
+[C:/Users/samsp/Source/Repos/OTLPView/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-yfnkaf8z7o
+
+[C:/Users/samsp/Source/Repos/OTLPView/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/samsp/Source/Repos/OTLPView/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
