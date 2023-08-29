@@ -13,12 +13,11 @@ public class MetricsPageState
 
     public void DataChanged()
     {
-        if (_page is not null)
-            _page.Update();
+        if (_page is not null) { _page.Update(); }
     }
 
     private OtlpApplication _selectedService;
-    public OtlpApplication SelectedService {
+    public OtlpApplication SelectedApp {
         get        {return _selectedService;}
         
         set

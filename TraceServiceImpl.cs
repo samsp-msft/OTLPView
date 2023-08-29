@@ -12,9 +12,9 @@ namespace OTLPView
 {
     public class TraceServiceImpl : OpenTelemetry.Proto.Collector.Trace.V1.TraceService.TraceServiceBase
     {
-        ILogger<TraceServiceImpl> _logger;
-        TelemetryResults _telemetryResults;
-        TracesPageState _pageState;
+        private readonly ILogger<TraceServiceImpl> _logger;
+        private readonly TelemetryResults _telemetryResults;
+        private readonly TracesPageState _pageState;
 
         public TraceServiceImpl(ILogger<TraceServiceImpl> logger, TelemetryResults telemetryResults, TracesPageState pageState)
         {
@@ -39,187 +39,26 @@ namespace OTLPView
             foreach (var r in resourceSpans)
             {
                 // Store the trace source if we haven't seen it before
-                var serviceName = r.Resource.Attributes.FindStringValueOrDefault("service.name", "Unknown");
                 var traceSource = _telemetryResults.GetOrAddApplication(r.Resource);
 
-                foreach (var ss in r.ScopeSpans)
+                foreach (var scopeSpan in r.ScopeSpans)
                 {
-                    var scopeName = ss.Scope.Name;
+                    var scopeName = scopeSpan.Scope.Name;
                     var traceScope = traceSource.GetOrAddTrace(scopeName, _ =>
                     {
-                        var color = traceSource.BarColors[traceSource.Scopes.Count];
-                        return new TraceScope(ss.Scope, color);
+                        var color = $"#{traceSource.ColorSequence[traceSource.Scopes.Count]:X6}";
+                        return new TraceScope(scopeSpan.Scope, color);
                     });
 
-                    foreach (var sp in ss.Spans)
+                    foreach (var sp in scopeSpan.Spans)
                     {
                         var operationId = sp.TraceId.ToHexString();
                         var operation = _telemetryResults.GetOrAddOperation(operationId);
-                        var span = new Span(sp, operation, traceSource, traceScope);
+                        var span = new TraceSpan(sp, operation, traceSource, traceScope);
                     }
                 }
             }
         }
 
     }
-
-    /// <summary>
-    /// Represents an Operation (Trace) that is composed of one or more Spans
-    /// </summary>
-    public class Operation
-    {
-        public string OperationId { get; init; }
-        public ConcurrentDictionary<String, Span> RootSpans { get; } = new();
-        [JsonIgnore]
-        public ConcurrentDictionary<String, Span> AllSpans { get; } = new();
-
-        public List<Span> UnParentedSpans => AllSpans.Values.Where(s => s.ParentSpanId is not null && s.ParentSpan == null).ToList();
-
-        public DateTime StartTime => AllSpans.Values.Min(s => s.StartTime);
-        public DateTime EndTime => AllSpans.Values.Max(s => s.EndTime);
-
-        public double Duration => (EndTime - StartTime).TotalMilliseconds;
-
-    }
-
-    /// <summary>
-    /// Represents a Span within an Operation (Trace)
-    /// </summary>
-    public class Span
-    {
-        public string OperationId { get; init; }
-        [JsonIgnore]
-        public Operation Operation { get; init; }
-        [JsonIgnore]
-        public TraceScope TraceScope { get; init; }
-        [JsonIgnore]
-        public OtlpApplication Source { get; init; }
-        public string SpanId { get; init; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string ParentSpanId { get; init; }
-        [JsonIgnore]
-        public Span ParentSpan { get; set; }
-        public string Name { get; init; }
-        public string Kind { get; init; }
-        public DateTime StartTime { get; init; }
-        public DateTime EndTime { get; init; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Status { get; init; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string State { get; init; }
-        [JsonIgnore]
-        public Dictionary<string, string> Attributes { get; init; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<SpanEvent> Events { get; } = new();
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Dictionary<string, string> Links { get; } = new();
-        public ConcurrentBag<Span> ChildSpans { get; } = new();
-
-        public string ScopeName => TraceScope.ScopeName;
-        public string ScopeSource => Source.ApplicationName;
-        public TimeSpan Duration => EndTime - StartTime;
-        public Span RootSpan => ParentSpan is null ? this : ParentSpan.RootSpan;
-
-        public bool NotParented => (ParentSpanId is not null && ParentSpan is null);
-
-        public Span(Otel.Span s, Operation operation, OtlpApplication traceSource, TraceScope scope)
-        {
-            OperationId = operation.OperationId;
-            SpanId = s.SpanId?.ToHexString();
-            if (s.SpanId is null)
-            {
-                throw new ArgumentException("Span has no SpanId");
-            }
-            ParentSpanId = s.ParentSpanId?.ToHexString();
-            Operation = operation;
-            Source = traceSource;
-            TraceScope = scope;
-            Name = s.Name;
-            Kind = s.Kind.ToString();
-            StartTime = Helpers.UnixNanoSecondsToDateTime(s.StartTimeUnixNano);
-            EndTime = Helpers.UnixNanoSecondsToDateTime(s.EndTimeUnixNano);
-            Status = s.Status?.ToString();
-            Attributes = s.Attributes.ToDictionary();
-            State = s.TraceState;
-
-            operation.AllSpans.TryAdd(SpanId, this);
-
-            // Find any events and add them
-            foreach (var e in s.Events)
-            {
-                Events.Add(new SpanEvent()
-                {
-                    Name = e.Name,
-                    Time = Helpers.UnixNanoSecondsToDateTime(e.TimeUnixNano),
-                    Attributes = e.Attributes.ToDictionary()
-                });
-            }
-
-            //Find the parent span and add this as a child
-            if (string.IsNullOrEmpty(ParentSpanId))
-            {
-                operation.RootSpans.TryAdd(SpanId, this);
-            }
-            else
-            {
-                Span parentSpan;
-                if (operation.AllSpans.TryGetValue(ParentSpanId, out parentSpan))
-                {
-                    ParentSpan = parentSpan;
-                    parentSpan.ChildSpans.Add(this);
-                }
-            }
-
-            // Find child spans and add them as children
-            foreach (var childSpan in operation.AllSpans.Values.Where(x => x.ParentSpanId == SpanId))
-            {
-                childSpan.ParentSpan = this;
-                ChildSpans.Add(childSpan);
-            }
-        }
-    }
-
-    public class SpanEvent
-    {
-        public string Name { get; init; }
-        public DateTime Time { get; init; }
-        public Dictionary<string, string> Attributes { get; init; }
-        public double TimeOffset(Span span) => (Time - span.StartTime).TotalMilliseconds;
-    }
-
-    /// <summary>
-    /// The Scope of a TraceSource, maps to the name of the ActivitySource in .NET
-    /// </summary>
-    public class TraceScope
-    {
-        public string ScopeName { get; init; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Version { get; init; }
-
-        private Dictionary<string, string> _properties { get; init; }
-
-
-        [JsonIgnore]
-        public IReadOnlyDictionary<string, string> Properties => _properties;
-        public string ServiceProperties => Properties.ConcatString();
-        public string BarColor { get; init; }
-
-        public TraceScope(InstrumentationScope scope, string color)
-        {
-            ScopeName = scope.Name;
-
-            _properties = scope.Attributes.ToDictionary();
-            Version = scope.Version;
-            BarColor = color;
-        }
-    }
-
-
-
-
-
-
-
-
-
 }

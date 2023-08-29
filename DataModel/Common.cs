@@ -5,6 +5,10 @@ namespace OTLPView.DataModel;
 
 public class OtlpApplication
 {
+    public const string SERVICE_NAME = "service.name";
+    public const string SERVICE_INSTANCE_ID = "service.instance.id";
+
+
     public string ApplicationName { get; init; }
     public string InstanceId { get; init; }
     public int Suffix { get; init; }
@@ -13,7 +17,7 @@ public class OtlpApplication
 
     public IReadOnlyDictionary<string, string> Properties => _properties;
 
-    public string[] BarColors { get; init; }
+    public int[] ColorSequence { get; init; }
 
     public OtlpApplication(Resource resource, IReadOnlyDictionary<string, OtlpApplication> applications)
     {
@@ -21,10 +25,10 @@ public class OtlpApplication
         {
             switch (attribute.Key)
             {
-                case "service.name":
+                case SERVICE_NAME:
                     ApplicationName = attribute.Value.ValueString();
                     break;
-                case "service.instance.id":
+                case SERVICE_INSTANCE_ID:
                     InstanceId = attribute.Value.ValueString();
                     break;
                 default:
@@ -36,7 +40,7 @@ public class OtlpApplication
         if (string.IsNullOrEmpty(ApplicationName)) { ApplicationName = "Unknown"; }
         if (string.IsNullOrEmpty(InstanceId)) { throw new ArgumentException("Resource needs to include a 'service.instance.id'"); }
         Suffix = applications.Where(a => a.Value.ApplicationName == ApplicationName).Count();
-        BarColors = Helpers.BarColors[applications.Count];
+        ColorSequence = Helpers.ColorSequence[applications.Count];
     }
 
     public string UniqueApplicationName => $"{ApplicationName}-{Suffix}";
@@ -83,7 +87,7 @@ public static class CommonHelpers
     {
         foreach (var attribute in resource.Attributes)
         {
-            if (attribute.Key == "service.instance.id")
+            if (attribute.Key == OtlpApplication.SERVICE_INSTANCE_ID)
             {
                 return attribute.Value.ValueString();
             }

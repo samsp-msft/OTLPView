@@ -1,12 +1,13 @@
-﻿using OTLPView;
+using OTLPView;
 using OTLPView.Pages;
+using OTLPView.DataModel;
 
 public class TracesPageState
 {
     private Traces _page;
-    private Span _selectedSpan;
-    private Operation _selectedOperation;
-    public Span SelectedSpan
+    private TraceSpan _selectedSpan;
+    private TraceOperation _selectedOperation;
+    public TraceSpan SelectedSpan
     {
         get { return _selectedSpan; }
         set
@@ -16,7 +17,7 @@ public class TracesPageState
         }
     }
 
-    public Operation SelectedOperation
+    public TraceOperation SelectedOperation
     {
         get { return _selectedOperation; }
         set
@@ -32,8 +33,7 @@ public class TracesPageState
 
     public void DataChanged()
     {
-        if (_page is not null)
-        _page.Update();
+        if (_page is not null) { _page.Update(); }
     }
 
 }

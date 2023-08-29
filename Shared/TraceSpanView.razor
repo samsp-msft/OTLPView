@@ -1,4 +1,5 @@
-﻿@inject TracesPageState state
+@inject TracesPageState state
+@using OTLPView.DataModel;
 
 <div class="SpanBlock">
     <div class="TimelineBlock" @onclick="UpdateSelection">
@@ -24,10 +25,10 @@
 
 
 @code {
-    private Span _span;
+    private TraceSpan _span;
 
     [Parameter]
-    public Span Span
+    public TraceSpan Span
     {
         get { return _span; }
         set

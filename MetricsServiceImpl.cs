@@ -20,9 +20,9 @@ namespace OTLPView
 {
     public class MetricsServiceImpl : OpenTelemetry.Proto.Collector.Metrics.V1.MetricsService.MetricsServiceBase
     {
-        ILogger<MetricsServiceImpl> _logger;
-        TelemetryResults _telemetryResults;
-        MetricsPageState _pageState;
+        private readonly ILogger<MetricsServiceImpl> _logger;
+        private readonly TelemetryResults _telemetryResults;
+        private readonly MetricsPageState _pageState;
         public MetricsServiceImpl(ILogger<MetricsServiceImpl> logger, TelemetryResults telemetryResults, MetricsPageState state)
         {
             _logger = logger;

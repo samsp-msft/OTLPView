@@ -13,15 +13,15 @@ namespace OTLPView
         private readonly ConcurrentDictionary<string, OtlpApplication> _applications = new();
 
         //Traces
-        private readonly ConcurrentDictionary<string, Operation> _operations = new();
+        private readonly ConcurrentDictionary<string, TraceOperation> _operations = new();
         //Using a list to keep the order of operations, but need to be careful about concurrency
-        private readonly List<Operation> _operationStack = new();
+        private readonly List<TraceOperation> _operationStack = new();
        
         public ConcurrentBag<OtlpLogEntry> Logs { get; init; } = new();
         public ConcurrentDictionary<int, string> LogPropertyKeys { get; } = new();
 
 
-        public IReadOnlyList<Operation> Operations => (IReadOnlyList<Operation>)_operationStack;
+        public IReadOnlyList<TraceOperation> Operations => (IReadOnlyList<TraceOperation>)_operationStack;
         public IReadOnlyDictionary<string, OtlpApplication> Applications => _applications;
    
 
@@ -30,7 +30,7 @@ namespace OTLPView
            MAX_OPERATION_COUNT = config.GetValue<int>("MaxOperationCount",1000);
         }
 
-        internal Operation GetOrAddOperation(string operationId)
+        internal TraceOperation GetOrAddOperation(string operationId)
         {
             if (!_operations.TryGetValue(operationId, out var operation))
             {
@@ -42,7 +42,7 @@ namespace OTLPView
                         _operationStack.RemoveAt(MAX_OPERATION_COUNT -1);
                         _operations.TryRemove(dead_operation.OperationId, out _);
                     }
-                    operation = new Operation() { OperationId = operationId };
+                    operation = new TraceOperation() { OperationId = operationId };
                     operation = _operations.GetOrAdd(operationId, operation);
                     _operationStack.Insert(0, operation);
                 }

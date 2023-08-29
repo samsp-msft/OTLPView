@@ -6,18 +6,18 @@
 <PageTitle>Metrics</PageTitle>
 
 <div class="MetricsTree">
-    <div class="ServicesList">
-        <div class="ServicesListTitle">
-            <h2>Services</h2>
+    <div class="ApplicationsList">
+        <div class="ApplicationsListTitle">
+            <h2>Applications</h2>
         </div>
-        <div class="ServicesListContents">
-            @foreach (var service in telemetryResults.Applications.Values)
+        <div class="ApplicationsListContents">
+            @foreach (var app in telemetryResults.Applications.Values)
             {
-                <div class="ServicesListItem">
-                    <h3>@service.ApplicationName</h3>
+                <div class="@IsAppSelected(app,"ApplicationsListItem" )" @onclick="@(_ => SelectApp(app))">
+                    <h3>@app.ApplicationName</h3>
                     <table class="ServiceDescription">
                         <tdata>
-                            @foreach (var p in service.Properties)
+                            @foreach (var p in app.Properties)
                             {
                                 <tr>
                                     <td class="Property">@p.Key:</td>
@@ -34,10 +34,10 @@
         <div class="MeterListTitle">
             <h2>Meters</h2>
         </div>
-        @if (state.SelectedService is not null)
+        @if (state.SelectedApp is not null)
         {
             <div class="MeterListContents">
-                @foreach (var m in state.SelectedService?.Meters.Values)
+                @foreach (var m in state.SelectedApp?.Meters.Values)
                 {
                     <div class="MeterListItem">
                         <h3>@m.MeterName</h3>
@@ -108,7 +108,7 @@
     protected override void OnInitialized()
     {
         state.SetPage(this);
-        UpdateSelectedService();
+        UpdateSelectedApp();
         UpdateSelectedMeter();
         UpdateSelectedMetric();
     }
@@ -116,20 +116,20 @@
 
     public void Update()
     {
-        UpdateSelectedService();
+        UpdateSelectedApp();
         UpdateSelectedMeter();
         UpdateSelectedMetric();
         InvokeAsync(() => StateHasChanged());
     }
 
 
-    public void UpdateSelectedService()
+    public void UpdateSelectedApp()
     {
-        if (state.SelectedService is null)
+        if (state.SelectedApp is null)
         {
             if (telemetryResults.Applications.Count > 0)
             {
-                state.SelectedService = telemetryResults.Applications.Values.First();
+                state.SelectedApp = telemetryResults.Applications.Values.First();
             }
         }
     }
@@ -138,9 +138,9 @@
     {
         if (state.SelectedMeter is null)
         {
-            if (state.SelectedService?.Meters.Count > 0)
+            if (state.SelectedApp?.Meters.Count > 0)
             {
-                state.SelectedMeter = state.SelectedService.Meters.Values.First();
+                state.SelectedMeter = state.SelectedApp.Meters.Values.First();
             }
         }
     }
@@ -156,13 +156,13 @@
         }
     }
 
-    public void SelectService(OtlpApplication s)
+    public void SelectApp(OtlpApplication s)
     {
-        state.SelectedService = s;
-        state.SelectedMeter = state.SelectedService.Meters.Values.First();
+        state.SelectedApp = s;
+        state.SelectedMeter = state.SelectedApp.Meters.Values.First();
     }
 
-    public string IsServiceSelected(OtlpApplication o, string cssClass) => cssClass + ((state.SelectedService == o) ? " Selected" : "");
+    public string IsAppSelected(OtlpApplication o, string cssClass) => cssClass + ((state.SelectedApp == o) ? " Selected" : "");
 
     public void SelectMeter(MeterResult m)
     {
@@ -178,4 +178,4 @@
     }
 
     public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
-                }
+}

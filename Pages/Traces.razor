@@ -1,6 +1,7 @@
-﻿@page "/Traces"
+@page "/Traces"
 @inject TelemetryResults telemetryResults
 @inject TracesPageState state
+@using OTLPView.DataModel;
 
 <PageTitle>Traces</PageTitle>
 
@@ -235,13 +236,13 @@
         }
     }
 
-    public void SelectOperation(Operation o)
+    public void SelectOperation(TraceOperation o)
     {
         state.SelectedOperation = o;
         state.SelectedSpan = state.SelectedOperation.RootSpans.Values.First();
     }
 
-    public string IsSelected(Operation o, string cssClass) => cssClass + ((state.SelectedOperation ==o) ? " Selected" : "");
+    public string IsSelected(TraceOperation o, string cssClass) => cssClass + ((state.SelectedOperation ==o) ? " Selected" : "");
 
 }
 

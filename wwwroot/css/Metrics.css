@@ -1,4 +1,4 @@
-﻿.MetricsTree {
+.MetricsTree {
     display: block;
     left: 260px;
     width: 400px;
@@ -14,36 +14,36 @@
     right: 0px;
 }
 
-.ServicesList {
+.ApplicationsList {
     display: block;
     height: 40%;
 }
 
-.ServicesListTitle h2 {
+.ApplicationsListTitle h2 {
     font-size: 12pt;
     margin: 4px 4px 1px 1px;
 }
 
-.ServicesListContents {
+.ApplicationsListContents {
     border: 1px solid darkgray;
     padding: 2px;
     height:100%;
     margin-bottom: 30px;
 }
 
-.ServicesListItem {
+.ApplicationsListItem {
     padding: 2px;
 }
 
-    .ServicesListItem.Selected {
+    .ApplicationsListItem.Selected {
         background-color: #4d5788;
     }
 
-    .ServicesListItem:hover {
+    .ApplicationsListItem:hover {
         background-color: #f2f2f2;
     }
 
-.ServicesListItem h3 {
+.ApplicationsListItem h3 {
     font-size: 12pt;
     margin: 4px 4px 1px 1px;
 }

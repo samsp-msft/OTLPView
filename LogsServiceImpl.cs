@@ -21,9 +21,9 @@ namespace OTLPView
 {
     public class LogsServiceImpl : LogsService.LogsServiceBase
     {
-        ILogger<LogsServiceImpl> _logger;
-        TelemetryResults _telemetryResults;
-        LogsPageState _pageState;
+        private readonly ILogger<LogsServiceImpl> _logger;
+        private readonly TelemetryResults _telemetryResults;
+        private readonly LogsPageState _pageState;
         public LogsServiceImpl(ILogger<LogsServiceImpl> logger, TelemetryResults telemetryResults, LogsPageState state)
         {
             _logger = logger;
@@ -46,84 +46,28 @@ namespace OTLPView
         {
             foreach (var rl in resourceLogs)
             {
-           
                 var logApp = _telemetryResults.GetOrAddApplication(rl.Resource);
-                ProcessGrpcResourceLog(rl, logApp);
-            }
-        }
-
-        private void ProcessGrpcResourceLog(ResourceLogs rl, OtlpApplication logApp)
-        {
-            foreach (var log in rl.ScopeLogs)
-            {
-                if (log.Scope is not null || !string.IsNullOrEmpty(log.SchemaUrl))
+                foreach (var log in rl.ScopeLogs)
                 {
-                    Debugger.Break();
-                }
-                foreach (var record in log.LogRecords)
-                {
-                    var logentry = new OtlpLogEntry(record, logApp);
-                    _telemetryResults.Logs.Add(logentry);
-                    foreach (var key in logentry.Properties.Keys)
+                    if (log.Scope is not null || !string.IsNullOrEmpty(log.SchemaUrl))
                     {
-                        _telemetryResults.LogPropertyKeys.GetOrAdd(key.GetHashCode(), key);
+                        // TODO: Handle this, but I don't know what the data looks like yet
+                        Debugger.Break();
+                    }
+                    foreach (var record in log.LogRecords)
+                    {
+                        var logEntry = new OtlpLogEntry(record, logApp);
+                        _telemetryResults.Logs.Add(logEntry);
+                        foreach (var key in logEntry.Properties.Keys)
+                        {
+                            _telemetryResults.LogPropertyKeys.GetOrAdd(key.GetHashCode(), key);
+                        }
                     }
                 }
             }
         }
     }
 
-    public class OtlpLogEntry
-    {
-        public Dictionary<string, string> Properties { get; init; }
-        public DateTime TimeStamp { get; init; }
-        public uint flags { get; init; }
-        public Microsoft.Extensions.Logging.LogLevel Severity { get; init; }
-        public string Message { get; init; }
-        public string SpanId { get; init; }
-        public string TraceId { get; init; }
-        public string ParentId { get; init; }
-        public string OriginalFormat { get; init; }
-        public OtlpApplication Application { get; init; }
 
-        public OtlpLogEntry(LogRecord record, OtlpApplication logApp)
-        {
-            var properties = new Dictionary<string, string>();
-            foreach (var kv in record.Attributes)
-            {
-                switch (kv.Key)
-                {
-                    case "{OriginalFormat}": OriginalFormat = kv.Value.ValueString(); break;
-                    case "ParentId": ParentId = kv.Value.ValueString(); break;
-                    case "SpanId":
-                    case "TraceId":
-                        // Explicitly ignore these
-                        break;
-                    default:
-                        properties.TryAdd(kv.Key, kv.Value.ValueString());
-                        break;
-                }
-            }
-            Properties = properties;
-
-            TimeStamp = Helpers.UnixNanoSecondsToDateTime(record.TimeUnixNano);
-            flags = record.Flags;
-            //Severity = switch (record.SeverityNumber)
-            //{
-            //    SeverityNumber.Trace => LogLevel.Trace,
-            //    SeverityNumber.Debug => LogLevel.Debug,
-            //    SeverityNumber.Info => LogLevel.Information,
-            //    SeverityNumber.Warn => LogLevel.Warning,
-            //    SeverityNumber.Error => LogLevel.Error,
-            //    SeverityNumber.Critical => LogLevel.Critical,
-            //    _ => LogLevel.None
-            //};
-
-            Message = record.Body.ValueString();
-            SpanId = record.SpanId.ToHexString();
-            TraceId = record.TraceId.ToHexString();
-            Application = logApp;
-        }
-    }
 
 }

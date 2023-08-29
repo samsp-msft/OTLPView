@@ -1,10 +1,11 @@
-﻿.GridConstraint{
+.GridConstraint{
     position:relative;
     left:0px;
     top:0px;
-    height: 80%;
     right: 250px;
-    width: fit-content;
+   width:80vw;
+   height: 100vw;
+
 }
 
 .GridContainer{
