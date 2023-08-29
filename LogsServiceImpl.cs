@@ -1,4 +1,4 @@
-﻿using Google.Protobuf;
+using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Grpc.Core;
 using OpenTelemetry.Proto.Common.V1;
@@ -15,6 +15,7 @@ using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Resource.V1;
 using System.Diagnostics;
+using OTLPView.DataModel;
 
 namespace OTLPView
 {
@@ -45,13 +46,13 @@ namespace OTLPView
         {
             foreach (var rl in resourceLogs)
             {
-                rl.Resource.Attributes.FindStringValue("service.name", out var resourceName);
-                var logApp = _telemetryResults.LogApplications.GetOrAdd(resourceName, _ => new LogApplication(resourceName, rl.Resource));
+           
+                var logApp = _telemetryResults.GetOrAddApplication(rl.Resource);
                 ProcessGrpcResourceLog(rl, logApp);
             }
         }
 
-        private void ProcessGrpcResourceLog(ResourceLogs rl, LogApplication logApp)
+        private void ProcessGrpcResourceLog(ResourceLogs rl, OtlpApplication logApp)
         {
             foreach (var log in rl.ScopeLogs)
             {
@@ -72,18 +73,6 @@ namespace OTLPView
         }
     }
 
-    public class LogApplication
-    {
-        public string ApplicationName { get; set; }
-        public Dictionary<string, string> Properties { get; set; }
-
-        public LogApplication(string resourceName, Resource resource)
-        {
-            ApplicationName = resourceName;
-            Properties = resource.Attributes.ToDictionary();
-        }
-    }
-
     public class OtlpLogEntry
     {
         public Dictionary<string, string> Properties { get; init; }
@@ -95,9 +84,9 @@ namespace OTLPView
         public string TraceId { get; init; }
         public string ParentId { get; init; }
         public string OriginalFormat { get; init; }
-        public LogApplication Application { get; init; }
+        public OtlpApplication Application { get; init; }
 
-        public OtlpLogEntry(LogRecord record, LogApplication logApp)
+        public OtlpLogEntry(LogRecord record, OtlpApplication logApp)
         {
             var properties = new Dictionary<string, string>();
             foreach (var kv in record.Attributes)

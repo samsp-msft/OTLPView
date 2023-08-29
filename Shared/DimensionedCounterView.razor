@@ -1,4 +1,4 @@
-﻿<div class="DimensionBlock">
+<div class="DimensionBlock">
     <h5 class="DimensionTitle">
         @foreach (var kv in Dimension.Dimensions)
         {
@@ -8,7 +8,7 @@
         }
     </h5>
     <div>
-        @foreach (var mValue in Dimension.values)
+        @foreach (var mValue in Dimension.Values)
         {
             @if (mValue is HistogramValue)
             {

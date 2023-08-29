@@ -1,10 +1,12 @@
-﻿using Google.Protobuf.Collections;
+using Google.Protobuf.Collections;
 using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Trace.V1;
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
 using static OTLPView.TraceServiceImpl;
 using Otel = OpenTelemetry.Proto.Trace.V1;
+using OTLPView.DataModel;
+using OpenTelemetry.Proto.Common.V1;
 
 namespace OTLPView
 {
@@ -38,31 +40,15 @@ namespace OTLPView
             {
                 // Store the trace source if we haven't seen it before
                 var serviceName = r.Resource.Attributes.FindStringValueOrDefault("service.name", "Unknown");
-                TraceSourceApplication traceSource = _telemetryResults.TraceSources.GetOrAdd(serviceName, _ =>
-                {
-                    var c = _telemetryResults.TraceSources.Count;
-
-                    return new TraceSourceApplication()
-                    {
-                        ApplicationName = serviceName,
-                        Properties = r.Resource.Attributes.ToDictionary(),
-                        BarColors = Helpers.BarColors[c]
-                    };
-                });
+                var traceSource = _telemetryResults.GetOrAddApplication(r.Resource);
 
                 foreach (var ss in r.ScopeSpans)
                 {
-                    string scopeName = ss.Scope.Name;
-                    TraceScope traceScope = traceSource.Scopes.GetOrAdd(scopeName, _ =>
+                    var scopeName = ss.Scope.Name;
+                    var traceScope = traceSource.GetOrAddTrace(scopeName, _ =>
                     {
                         var color = traceSource.BarColors[traceSource.Scopes.Count];
-                        return new TraceScope()
-                        {
-                            ScopeName = scopeName,
-                            Properties = ss.Scope.Attributes.ToDictionary(),
-                            Version = ss.Scope.Version,
-                            BarColor = color
-                        };
+                        return new TraceScope(ss.Scope, color);
                     });
 
                     foreach (var sp in ss.Spans)
@@ -107,7 +93,7 @@ namespace OTLPView
         [JsonIgnore]
         public TraceScope TraceScope { get; init; }
         [JsonIgnore]
-        public TraceSourceApplication Source { get; init; }
+        public OtlpApplication Source { get; init; }
         public string SpanId { get; init; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string ParentSpanId { get; init; }
@@ -136,25 +122,25 @@ namespace OTLPView
 
         public bool NotParented => (ParentSpanId is not null && ParentSpan is null);
 
-        public Span(Otel.Span s, Operation operation, TraceSourceApplication traceSource, TraceScope scope)
+        public Span(Otel.Span s, Operation operation, OtlpApplication traceSource, TraceScope scope)
         {
-            this.OperationId = operation.OperationId;
-            this.SpanId = s.SpanId?.ToHexString();
+            OperationId = operation.OperationId;
+            SpanId = s.SpanId?.ToHexString();
             if (s.SpanId is null)
             {
                 throw new ArgumentException("Span has no SpanId");
             }
-            this.ParentSpanId = s.ParentSpanId?.ToHexString();
-            this.Operation = operation;
-            this.Source = traceSource;
-            this.TraceScope = scope;
-            this.Name = s.Name;
-            this.Kind = s.Kind.ToString();
-            this.StartTime = Helpers.UnixNanoSecondsToDateTime(s.StartTimeUnixNano);
-            this.EndTime = Helpers.UnixNanoSecondsToDateTime(s.EndTimeUnixNano);
-            this.Status = s.Status?.ToString();
-            this.Attributes = s.Attributes.ToDictionary();
-            this.State = s.TraceState;
+            ParentSpanId = s.ParentSpanId?.ToHexString();
+            Operation = operation;
+            Source = traceSource;
+            TraceScope = scope;
+            Name = s.Name;
+            Kind = s.Kind.ToString();
+            StartTime = Helpers.UnixNanoSecondsToDateTime(s.StartTimeUnixNano);
+            EndTime = Helpers.UnixNanoSecondsToDateTime(s.EndTimeUnixNano);
+            Status = s.Status?.ToString();
+            Attributes = s.Attributes.ToDictionary();
+            State = s.TraceState;
 
             operation.AllSpans.TryAdd(SpanId, this);
 
@@ -201,20 +187,6 @@ namespace OTLPView
         public double TimeOffset(Span span) => (Time - span.StartTime).TotalMilliseconds;
     }
 
-    public class TraceSourceApplication
-    {
-        public string ApplicationName { get; init; }
-        [JsonIgnore]
-        public Dictionary<String, String> Properties { get; init; }
-        [JsonIgnore]
-        public ConcurrentDictionary<string, TraceScope> Scopes { get; } = new();
-        public string[] BarColors { get; init; }
-
-        public string ServiceProperties => Properties.ConcatString();
-    
-
-    }
-
     /// <summary>
     /// The Scope of a TraceSource, maps to the name of the ActivitySource in .NET
     /// </summary>
@@ -223,10 +195,23 @@ namespace OTLPView
         public string ScopeName { get; init; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Version { get; init; }
+
+        private Dictionary<string, string> _properties { get; init; }
+
+
         [JsonIgnore]
-        public Dictionary<String, String> Properties { get; init; }
+        public IReadOnlyDictionary<string, string> Properties => _properties;
         public string ServiceProperties => Properties.ConcatString();
         public string BarColor { get; init; }
+
+        public TraceScope(InstrumentationScope scope, string color)
+        {
+            ScopeName = scope.Name;
+
+            _properties = scope.Attributes.ToDictionary();
+            Version = scope.Version;
+            BarColor = color;
+        }
     }
 
 

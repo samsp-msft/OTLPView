@@ -1,5 +1,7 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text.Json;
+using OpenTelemetry.Proto.Resource.V1;
+using OTLPView.DataModel;
 
 namespace OTLPView
 {
@@ -7,19 +9,21 @@ namespace OTLPView
     {
         private readonly int MAX_OPERATION_COUNT;
 
-        public ConcurrentDictionary<string, ServiceMetrics> ServiceMetrics = new();
+        // Common
+        private readonly ConcurrentDictionary<string, OtlpApplication> _applications = new();
 
-        private ConcurrentDictionary<string, Operation> _operations = new();
-        private List<Operation> _operationStack = new();
-        public ConcurrentDictionary<string, TraceSourceApplication> TraceSources = new();
-
-        public ConcurrentDictionary<string, LogApplication> LogApplications = new();
+        //Traces
+        private readonly ConcurrentDictionary<string, Operation> _operations = new();
+        //Using a list to keep the order of operations, but need to be careful about concurrency
+        private readonly List<Operation> _operationStack = new();
+       
         public ConcurrentBag<OtlpLogEntry> Logs { get; init; } = new();
         public ConcurrentDictionary<int, string> LogPropertyKeys { get; } = new();
 
 
         public IReadOnlyList<Operation> Operations => (IReadOnlyList<Operation>)_operationStack;
-        
+        public IReadOnlyDictionary<string, OtlpApplication> Applications => _applications;
+   
 
         public TelemetryResults(IConfiguration config)
         {
@@ -28,8 +32,7 @@ namespace OTLPView
 
         internal Operation GetOrAddOperation(string operationId)
         {
-            Operation operation;
-            if (!_operations.TryGetValue(operationId, out operation))
+            if (!_operations.TryGetValue(operationId, out var operation))
             {
                 lock (_operationStack)
                 {
@@ -47,8 +50,18 @@ namespace OTLPView
             return operation;
         }
 
+        public OtlpApplication GetOrAddApplication(Resource resource)
+        {
+            if (resource == null)
+            {
+                return null;
+            }
+            var serviceId = resource.GetServiceId();
+            return _applications.GetOrAdd(serviceId, _=> new OtlpApplication(resource, Applications));
+        }
+
         #region JSON Serialization
-        private JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
             Converters =
@@ -59,7 +72,7 @@ namespace OTLPView
 
         public string GetMetricJSON()
         {
-            return JsonSerializer.Serialize(ServiceMetrics, _jsonOptions);
+            return JsonSerializer.Serialize(Applications, _jsonOptions);
         }
 
         public string GetTraceJSON()

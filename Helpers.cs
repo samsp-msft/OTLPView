@@ -1,4 +1,4 @@
-﻿using Google.Protobuf.Collections;
+using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
 using System.Text;
 
@@ -13,7 +13,7 @@ namespace OTLPView
             {
                 if (kv.Key == key)
                 {
-                    value = kv.Value.StringValue;
+                    value = kv.Value.ValueString();
                     return true;
                 }
             }
@@ -26,10 +26,28 @@ namespace OTLPView
             {
                 if (kv.Key == key)
                 {
-                    return kv.Value.StringValue;
+                    return kv.Value.ValueString();
                 }
             }
             return defaultValue;
+        }
+
+        public static string Left(this string value, int length)
+        {
+            if (value.Length <= length)
+            {
+                return value;
+            }
+            return value.Substring(0, length);
+        }
+
+        public static string Right(this string value, int length)
+        {
+            if (value.Length <= length)
+            {
+                return value;
+            }
+            return value.Substring(value.Length - length, length);
         }
 
         public static string ValueString(this AnyValue value)
@@ -61,10 +79,10 @@ namespace OTLPView
             return dict;
         }
 
-        public static string ConcatString(this Dictionary<string, string> dict)
+        public static string ConcatString(this IReadOnlyDictionary<string, string> dict)
         {
             StringBuilder sb = new();
-            bool first = true;
+            var first = true;
             foreach (var kv in dict)
             {
                 if (!first)
@@ -108,8 +126,8 @@ namespace OTLPView
 
         public static DateTime UnixNanoSecondsToDateTime(ulong unixTimeNanoSeconds)
         {
-            long unixTimeTicks = (long)(unixTimeNanoSeconds / 100);
-            long ticks = unixTimeTicks + UnixEpochTicks;
+            var unixTimeTicks = (long)(unixTimeNanoSeconds / 100);
+            var ticks = unixTimeTicks + UnixEpochTicks;
             return new DateTime(ticks);
         }
 

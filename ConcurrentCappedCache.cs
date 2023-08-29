@@ -1,10 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace OTLPView
 {
     public class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
     {
-        const int DEFAULT_MAX_COUNT = 1024;
+        private const int DEFAULT_MAX_COUNT = 1024;
 
         private readonly int _maxCount;
         private int _count;
@@ -89,7 +89,7 @@ namespace OTLPView
         {
             lock (this)
             {
-                for (int i = 0; i < _count; i++)
+                for (var i = 0; i < _count; i++)
                 {
                     if (this[i].Equals(item))
                     {
@@ -104,7 +104,7 @@ namespace OTLPView
         {
             lock (this)
             {
-                for (int i = _wrapindex; i < _count + _wrapindex; i++)
+                for (var i = _wrapindex; i < _count + _wrapindex; i++)
                 {
                     if (this[i % _maxCount].Equals(item))
                     {
@@ -124,33 +124,30 @@ namespace OTLPView
             int i;
             lock (this)
             {
-                if (Count == 0)
-                    return default(T);
+                if (Count == 0) { return default; }
                 i = (_wrapindex + _count - 1) % _maxCount;
             }
             return _cache[i];
         }
         public T[] First(int count)
         {
-            T[] result = new T[count];
+            var result = new T[count];
             lock (this)
             {
                 count = Math.Min(count, _count);
 
-                for (int i = 0; i < count; i++)
-                    result[i] = _cache[(_wrapindex + i) % _maxCount];
+                for (var i = 0; i < count; i++) { result[i] = _cache[(_wrapindex + i) % _maxCount]; }
             }
             return result;
         }
         public T[] Last(int count)
         {
-            T[] result = new T[count];
+            var result = new T[count];
             lock (this)
             {
                 count = Math.Min(count, _count);
-       
-                for (int i = 0; i < count; i++)
-                    result[i] = _cache[(_wrapindex + _count - count + i) % _maxCount];
+
+                for (var i = 0; i < count; i++) { result[i] = _cache[(_wrapindex + _count - count + i) % _maxCount]; }
             }
             return result;
         }
