@@ -1,7 +1,7 @@
 ﻿.MetricsTree {
     display: block;
     left: 260px;
-    width: 300px;
+    width: 400px;
     position: fixed;
     top: 80px;
     height: 100%;
@@ -9,7 +9,7 @@
 
 .MetricDetails {
     display: block;
-    margin-left: 300px;
+    margin-left: 400px;
     margin-top: 0px;
     right: 0px;
 }
@@ -27,7 +27,8 @@
 .ServicesListContents {
     border: 1px solid darkgray;
     padding: 2px;
-    height:max-content;
+    height:100%;
+    margin-bottom: 30px;
 }
 
 .ServicesListItem {
@@ -64,7 +65,7 @@
 }
 
 .MeterListItem {
-    padding: 2px;
+    padding: 5px;
 }
 
     .MeterListItem h3 {
@@ -72,12 +73,17 @@
         margin: 4px 4px 1px 1px;
     }
 
-.MeterListItem.Selected {
+/*.MeterListItem.Selected {
     background-color: #4d5788;
 }
 
 .MeterListItem:hover {
     background-color: #f2f2f2;
+}*/
+
+.MeterDescription {
+    font-size: 10pt;
+    margin-left: 10px;
 }
 
 
@@ -92,13 +98,14 @@
 }
 
 .MetricListContents {
-    border: 1px solid darkgray;
     padding: 2px;
     height: max-content;
+    margin-left:16px;
 }
 
 .MetricListItem {
-    padding: 2px;
+    padding: 3px 3px 3px 8px;
+    border-left: 2px solid darkgray;
 }
 
     .MetricListItem h3 {
@@ -148,18 +155,18 @@
     padding: 2px 10px;
 }
 
-    .MeterBlock:nth-child(even) {
+/*    .MeterBlock:nth-child(even) {
         background-color: #c2c2d6;
     }
-
+*/
 .CounterBlock {
     margin-left: 8px;
     padding: 2px 10px;
 }
 
-    .CounterBlock:nth-child(even) {
+/*    .CounterBlock:nth-child(even) {
         background-color: #d1d1e0;
-    }
+    }*/
 
 .CounterName {
     display: inline-block;
@@ -174,11 +181,11 @@
 }
 
 .DimensionBlock {
-    margin-left: 8px;
-    padding: 2px 10px;
+    margin: 4px 4px 4px 12px;
+    padding: 3px 6px;
 }
 
-    .DimensionBlock:nth-child(even) {
+    .DimensionBlock:nth-child(odd) {
         background-color: #e0e0eb;
     }
 

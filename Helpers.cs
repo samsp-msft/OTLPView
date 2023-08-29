@@ -32,34 +32,31 @@ namespace OTLPView
             return defaultValue;
         }
 
+        public static string ValueString(this AnyValue value)
+        {
+            switch (value.ValueCase)
+            {
+                case AnyValue.ValueOneofCase.StringValue:
+                    return value.StringValue;
+                case AnyValue.ValueOneofCase.IntValue:
+                    return value.IntValue.ToString();
+                case AnyValue.ValueOneofCase.DoubleValue:
+                    return value.DoubleValue.ToString();
+                case AnyValue.ValueOneofCase.BoolValue:
+                    return value.BoolValue.ToString();
+                case AnyValue.ValueOneofCase.BytesValue:
+                    return value.BytesValue.ToHexString();
+                default:
+                    return value.ToString();
+            }
+        }
+
         public static Dictionary<string, string> ToDictionary(this RepeatedField<KeyValue> attributes)
         {
             var dict = new Dictionary<string, string>();
             foreach (var kv in attributes)
             {
-                string value="<empty>";
-                switch (kv.Value.ValueCase)
-                {
-                    case AnyValue.ValueOneofCase.StringValue:
-                        value = kv.Value.StringValue;
-                        break;
-                    case AnyValue.ValueOneofCase.IntValue:
-                        value = kv.Value.IntValue.ToString();
-                        break;
-                    case AnyValue.ValueOneofCase.DoubleValue:
-                        value = kv.Value.DoubleValue.ToString();
-                        break;
-                    case AnyValue.ValueOneofCase.BoolValue:
-                        value = kv.Value.BoolValue.ToString();
-                        break;
-                    case AnyValue.ValueOneofCase.BytesValue:
-                        value = kv.Value.BytesValue.ToHexString();
-                        break;
-                    default:
-                        value = kv.Value.ToString();
-                        break;
-                }
-                dict.Add(kv.Key, kv.Value.StringValue);
+                dict.TryAdd(kv.Key, kv.Value.ValueString());
             }
             return dict;
         }
@@ -80,6 +77,16 @@ namespace OTLPView
             }
             return sb.ToString();
         }
+
+        public static string ValueOrDefault(this Dictionary<string, string> dict, string key, string defaultValue)
+        {
+            if (dict.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+            return defaultValue;
+        }
+
 
         private const int DaysPerYear = 365;
         // Number of days in 4 years

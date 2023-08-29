@@ -13,6 +13,11 @@ namespace OTLPView
         private List<Operation> _operationStack = new();
         public ConcurrentDictionary<string, TraceSourceApplication> TraceSources = new();
 
+        public ConcurrentDictionary<string, LogApplication> LogApplications = new();
+        public ConcurrentBag<OtlpLogEntry> Logs { get; init; } = new();
+        public ConcurrentDictionary<int, string> LogPropertyKeys { get; } = new();
+
+
         public IReadOnlyList<Operation> Operations => (IReadOnlyList<Operation>)_operationStack;
         
 

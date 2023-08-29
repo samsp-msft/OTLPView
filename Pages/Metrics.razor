@@ -12,7 +12,7 @@
         <div class="ServicesListContents">
             @foreach (var service in telemetryResults.ServiceMetrics.Values)
             {
-                <div class="@IsServiceSelected(service,"ServicesListItem")" @onclick="@(_ => SelectService(service))">
+                <div class="ServicesListItem">
                     <h3>@service.ServiceName</h3>
                     <table class="ServiceDescription">
                         <tdata>
@@ -26,7 +26,7 @@
                         </tdata>
                     </table>
                 </div>
-            }
+                }
         </div>
     </div>
     <div class="MeterList">
@@ -38,7 +38,7 @@
             <div class="MeterListContents">
                 @foreach (var m in state.SelectedService?.Meters.Values)
                 {
-                    <div class="@IsMeterSelected(m,"MeterListItem")" @onclick="@(_ => SelectMeter(m))">
+                    <div class="MeterListItem">
                         <h3>@m.MeterName</h3>
                         <table class="MeterDescription">
                             <tdata>
@@ -59,47 +59,48 @@
                                 }
                             </tdata>
                         </table>
+
+
+                        <div class="MetricListContents">
+                            @foreach (var cnt in m.Counters.Values)
+                            {
+                                <div class="@IsMetricSelected(cnt,"MetricListItem" )" @onclick="@(_ => SelectMetric(cnt))">
+                                    <h3 class="CounterName">@cnt.CounterName</h3>
+                                </div>
+                            }
+                        </div>
+
                     </div>
                 }
             </div>
         }
     </div>
-    <div class="MetricList">
-        <div class="MetricListTitle">
-            <h2>Metrics</h2>
-        </div>
-        <div class="MetricListContents">
-            @foreach (var cnt in state.SelectedMeter?.Counters.Values)
-            {
-                <div class="@IsMetricSelected(cnt,"MetricListItem" )" @onclick="@(_ => SelectMetric(cnt))">
-                    <h3 class="CounterName">@cnt.CounterName</h3>
-                </div>
-            }
-        </div>
-    </div>
 </div>
+
 <div class="MetricDetails">
     <div class="MetricDetailsTitle">
         <h2>Metric Values</h2>
     </div>
-    <div class="CounterBlock">
-        <h4 class="CounterName">@state.SelectedMetric.CounterName</h4>
-        <div class="CounterDetails">
-            <div>
-                <span class="Property">Unit: </span>
-                <span class="Value">@state.SelectedMetric.CounterUnit</span>
-                <span class="Property">Description:</span>
-                <span class="Value">@state.SelectedMetric.CounterDescription</span>
+    @if (state.SelectedMetric is not null)
+    {
+        <div class="CounterBlock">
+            <h4 class="CounterName">@state.SelectedMetric.CounterName</h4>
+            <div class="CounterDetails">
+                <div>
+                    <span class="Property">Unit: </span>
+                    <span class="Value">@state.SelectedMetric.CounterUnit</span>
+                    <span class="Property">Description:</span>
+                    <span class="Value">@state.SelectedMetric.CounterDescription</span>
+                </div>
             </div>
-        </div>
-        <div class="CounterContents">
-            @foreach (var Dimension in state.SelectedMetric.Dimensions.Values)
-            {
-                <DimensionedCounterView Dimension="@Dimension" />
-            }
-        </div>
+            <div class="CounterContents">
+                @foreach (var Dimension in state.SelectedMetric.Dimensions.Values)
+                {
+                    <DimensionedCounterView Dimension="@Dimension" />
+                }
+            </div>
     </div>
-
+    }
 </div>
 @code {
 
@@ -176,4 +177,4 @@
     }
 
     public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
-}
+                }

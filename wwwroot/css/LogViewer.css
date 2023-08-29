@@ -1,0 +1,27 @@
+﻿.GridConstraint{
+    position:relative;
+    left:0px;
+    top:0px;
+    height: 80%;
+    right: 250px;
+    width: fit-content;
+}
+
+.GridContainer{
+    overflow: scroll;
+}
+
+
+.ClickableColumn {
+    color: darkblue;
+}
+
+.SidePanel {
+    position: absolute;
+    top: 60px;
+    width: 250px;
+    right:0px;
+    height: 100%;
+    border-left: 1px solid darkgrey;
+    padding: 4px;
+}

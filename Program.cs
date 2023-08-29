@@ -9,10 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<TelemetryResults>();
 builder.Services.AddSingleton<TracesPageState>();
 builder.Services.AddSingleton<MetricsPageState>();
+builder.Services.AddSingleton<LogsPageState>();
 
 builder.Services.AddGrpc();
 
@@ -49,6 +49,7 @@ if (!app.Environment.IsDevelopment())
 
 app.MapGrpcService<MetricsServiceImpl>();
 app.MapGrpcService<TraceServiceImpl>();
+app.MapGrpcService<LogsServiceImpl>();
 
 app.UseHttpsRedirection();
 
