@@ -1,0 +1,185 @@
+@page "/Metrics"
+@inject TelemetryResults telemetryResults
+@inject MetricsPageState state
+@using OTLPView.DataModel;
+
+<PageTitle>Metrics</PageTitle>
+
+<div class="MetricsTree">
+    <div class="ApplicationsList">
+        <div class="ApplicationsListTitle">
+            <h2>Applications</h2>
+        </div>
+        <div class="ApplicationsListContents">
+            @foreach (var app in telemetryResults.Applications.Values)
+            {
+                <div class="@IsAppSelected(app,"ApplicationsListItem" )" @onclick="@(_ => SelectApp(app))">
+                    <h3>@app.UniqueApplicationName</h3>
+                    <table class="ServiceDescription">
+                        <tdata>
+                            <tr>
+                                <td class="Property">Instance Id:</td>
+                                <td class="Value">@app.InstanceId</td>
+                            </tr>
+                            @foreach (var p in app.Properties)
+                            {
+                                <tr>
+                                    <td class="Property">@p.Key:</td>
+                                    <td class="Value">@p.Value</td>
+                                </tr>
+                            }
+                        </tdata>
+                    </table>
+                </div>
+                }
+        </div>
+    </div>
+    <div class="MeterList">
+        <div class="MeterListTitle">
+            <h2>Meters</h2>
+        </div>
+        @if (state.SelectedApp is not null)
+        {
+            <div class="MeterListContents">
+                @foreach (var m in state.SelectedApp?.Meters.Values)
+                {
+                    <div class="MeterListItem">
+                        <h3>@m.MeterName</h3>
+                        <table class="MeterDescription">
+                            <tdata>
+                                @if (!string.IsNullOrEmpty(m.Version))
+                                {
+                                    <tr>
+                                        <td class="Property">Version:</td>
+                                        <td class="Value">@m.Version</td>
+
+                                    </tr>
+                                }
+                                @foreach (var p in m.Properties)
+                                {
+                                    <tr>
+                                        <td class="Property">@p.Key:</td>
+                                        <td class="Value">@p.Value</td>
+                                    </tr>
+                                }
+                            </tdata>
+                        </table>
+
+
+                        <div class="MetricListContents">
+                            @foreach (var cnt in m.Counters.Values)
+                            {
+                                <div class="@IsMetricSelected(cnt,"MetricListItem" )" @onclick="@(_ => SelectMetric(cnt))">
+                                    <h3 class="CounterName">@cnt.CounterName</h3>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<div class="MetricDetails">
+    <div class="MetricDetailsTitle">
+        <h2>Metric Values</h2>
+    </div>
+    @if (state.SelectedMetric is not null)
+    {
+        <div class="CounterBlock">
+            <h4 class="CounterName">@state.SelectedMetric.CounterName</h4>
+            <div class="CounterDetails">
+                <div>
+                    <span class="Property">Unit: </span>
+                    <span class="Value">@state.SelectedMetric.CounterUnit</span>
+                    <span class="Property">Description:</span>
+                    <span class="Value">@state.SelectedMetric.CounterDescription</span>
+                </div>
+            </div>
+            <div class="CounterContents">
+                @foreach (var Dimension in state.SelectedMetric.Dimensions.Values)
+                {
+                    <DimensionedCounterView Dimension="@Dimension" />
+                }
+            </div>
+    </div>
+    }
+</div>
+@code {
+
+    protected override void OnInitialized()
+    {
+        state.SetPage(this);
+        UpdateSelectedApp();
+        UpdateSelectedMeter();
+        UpdateSelectedMetric();
+    }
+
+
+    public void Update()
+    {
+        UpdateSelectedApp();
+        UpdateSelectedMeter();
+        UpdateSelectedMetric();
+        InvokeAsync(() => StateHasChanged());
+    }
+
+
+    public void UpdateSelectedApp()
+    {
+        if (state.SelectedApp is null)
+        {
+            if (telemetryResults.Applications.Count > 0)
+            {
+                state.SelectedApp = telemetryResults.Applications.Values.First();
+            }
+        }
+    }
+
+    public void UpdateSelectedMeter()
+    {
+        if (state.SelectedMeter is null)
+        {
+            if (state.SelectedApp?.Meters.Count > 0)
+            {
+                state.SelectedMeter = state.SelectedApp.Meters.Values.First();
+            }
+        }
+    }
+
+    public void UpdateSelectedMetric()
+    {
+        if (state.SelectedMetric is null)
+        {
+            if (state.SelectedMeter?.Counters.Count > 0)
+            {
+                state.SelectedMetric = state.SelectedMeter.Counters.Values.First();
+            }
+        }
+    }
+
+    public void SelectApp(OtlpApplication s)
+    {
+        state.SelectedApp = s;
+        state.SelectedMeter = state.SelectedApp.Meters.Values.First();
+    }
+
+    public string IsAppSelected(OtlpApplication o, string cssClass) => cssClass + ((state.SelectedApp == o) ? " Selected" : "");
+
+    public void SelectMeter(MeterResult m)
+    {
+        state.SelectedMeter = m;
+        state.SelectedMetric = state.SelectedMeter.Counters.Values.First();
+    }
+
+    public string IsMeterSelected(MeterResult o, string cssClass) => cssClass + ((state.SelectedMeter == o) ? " Selected" : "");
+
+    public void SelectMetric(Counter c)
+    {
+        state.SelectedMetric = c;
+    }
+
+    public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
+}

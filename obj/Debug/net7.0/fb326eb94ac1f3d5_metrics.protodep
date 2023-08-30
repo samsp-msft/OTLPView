@@ -1,3 +1,0 @@
-obj\Debug\net7.0\opentelemetry\proto\metrics\v1/Metrics.cs: otlp/opentelemetry/proto/common/v1/common.proto\
- otlp/opentelemetry/proto/resource/v1/resource.proto\
- otlp/opentelemetry/proto/metrics/v1/metrics.proto

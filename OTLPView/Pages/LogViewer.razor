@@ -1,0 +1,80 @@
+@page "/"
+@inject TelemetryResults telemetryResults
+@inject LogsPageState state
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using OTLPView.DataModel
+
+<PageTitle>Logs</PageTitle>
+<div class="GridConstraint">
+<div class="GridContainer">
+    <QuickGrid Items="@LogEntries" @ref="logGrid" Virtualize="true">
+        <PropertyColumn Property="@(l => l.Application.ShortApplicationName.HtmlEncode())" Sortable="true" />
+        <PropertyColumn Property="@(l => l.Severity)" Sortable="true" />
+        <PropertyColumn Property="@(l => l.TimeStamp.ToLocalTime())" Format="hh:mm:ss.fff" Sortable="true" Title="Timestamp" />
+        <PropertyColumn Property="@(l => l.OriginalFormat)" Sortable="true" />
+        <PropertyColumn Property="@(l => l.SpanId)" Sortable="true" />
+        <TemplateColumn Title="TraceId">
+            <span class="ClickableColumn" onclick="@(() => FilterByTraceId(context))">@context.TraceId</span>
+        </TemplateColumn>
+        @if (HasLogData)
+        {
+            @foreach (var column in telemetryResults.LogPropertyKeys.Values)
+            {
+                <PropertyColumn Property="@(l => l.Properties.ValueOrDefault(column,""))" Sortable="true" Title="@column" />
+            }
+        }
+    </QuickGrid>
+</div>
+</div>
+<div class="SidePanel">
+    <div> Filtering controls will go here:
+        <p> Select a TraceID to filter by it</p>
+        <p> Select a spanId to see it and its children</p>
+        <p> Select a message to only see them</p>
+        <p> select an application to only show it's messages</p>
+        <p>etc.</p>
+       
+    </div>
+
+</div>
+@code {
+    IQueryable<OtlpLogEntry> LogEntries;
+    QuickGrid<OtlpLogEntry> logGrid;
+
+    bool HasLogData => telemetryResults.Applications.Count > 0;
+
+    private string TraceIdFilter = "";
+
+    protected override void OnInitialized()
+    {
+        state.SetPage(this);
+        UpdateQuery();
+    }
+
+    public void Update()
+    {
+        InvokeAsync(() => StateHasChanged());
+        UpdateQuery();
+    }
+
+    public void FilterByTraceId(OtlpLogEntry entry)
+    {
+        TraceIdFilter = entry.TraceId;
+        UpdateQuery();
+    }
+
+    async Task UpdateQuery()
+    {
+        if (telemetryResults.Logs.Count == 0)
+        {
+            LogEntries = null;
+            return;
+        }
+        LogEntries = telemetryResults.Logs.AsQueryable();
+        if (!string.IsNullOrEmpty(TraceIdFilter))
+        {
+            LogEntries = LogEntries.Where(l => l.TraceId == TraceIdFilter).AsQueryable();
+        }
+        InvokeAsync(() => StateHasChanged());
+    }
+}
