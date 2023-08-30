@@ -10,8 +10,9 @@
             OnClick="@DrawerToggle" />
         <MudText Typo="Typo.h5" Class="ml-3">OTLP View</MudText>
         <MudSpacer />
-        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool"
-                Label="Light/Dark Mode" />
+        <MudToggleIconButton @bind-Toggled="@_isDarkMode"
+                             Icon="@Icons.Material.Filled.DarkMode" Color="@Color.Inherit" Title="Dark mode" Size=@Size.Large
+                             ToggledIcon="@Icons.Material.Filled.LightMode" ToggledColor="@Color.Inherit" ToggledTitle="Light mode" ToggledSize=@Size.Large />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Size="Size.Large"
                        Title="Visit the GitHub repository for this dashboard."
                        Href="https://github.com/samsp-msft/OTLPView" Target="_blank" />

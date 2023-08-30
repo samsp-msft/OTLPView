@@ -9,7 +9,21 @@
 }
 else
 {
-    <div class="MetricsTree">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        @foreach (var (key, app) in TelemetryResults.Applications)
+        {
+            var offset = 6;
+            var tabName = $"{app.UniqueApplicationName} (Id: {app.InstanceId[0..offset]}...{app.InstanceId[^offset..^0]})";
+            <MudTabPanel Text="@tabName" Style="text-transform: initial;"
+                         ToolTip="@($"See app metric data for {app.UniqueApplicationName} (Id: {app.InstanceId}).")">
+                <MudPaper Elevation="5">
+                    <MudText></MudText>
+                </MudPaper>
+            </MudTabPanel>
+        }
+    </MudTabs>
+
+@*     <div class="MetricsTree">
         <div class="ApplicationsList">
             <div class="ApplicationsListTitle">
                 <h2>Applications</h2>
@@ -110,5 +124,5 @@ else
                 </div>
             </div>
         }
-    </div>
+    </div> *@
 }
