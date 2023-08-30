@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace OTLPView;
 
 public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>

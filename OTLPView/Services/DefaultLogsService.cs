@@ -1,19 +1,12 @@
-using System.Diagnostics;
-using Google.Protobuf.Collections;
-using Grpc.Core;
-using OpenTelemetry.Proto.Collector.Logs.V1;
-using OpenTelemetry.Proto.Logs.V1;
-using OTLPView.DataModel;
+namespace OTLPView.Services;
 
-namespace OTLPView;
-
-public class LogsServiceImpl : LogsService.LogsServiceBase
+public class DefaultLogsService : LogsService.LogsServiceBase
 {
-    private readonly ILogger<LogsServiceImpl> _logger;
+    private readonly ILogger<DefaultLogsService> _logger;
     private readonly TelemetryResults _telemetryResults;
     private readonly LogsPageState _pageState;
 
-    public LogsServiceImpl(ILogger<LogsServiceImpl> logger, TelemetryResults telemetryResults, LogsPageState state)
+    public DefaultLogsService(ILogger<DefaultLogsService> logger, TelemetryResults telemetryResults, LogsPageState state)
     {
         _logger = logger;
         _telemetryResults = telemetryResults;

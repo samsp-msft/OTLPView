@@ -1,6 +1,3 @@
-using OTLPView.DataModel;
-using OTLPView.Pages;
-
 public class TracesPageState
 {
     private Traces _page;

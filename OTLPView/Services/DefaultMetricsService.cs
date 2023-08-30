@@ -1,23 +1,18 @@
-using Google.Protobuf.Collections;
-using Grpc.Core;
-using OpenTelemetry.Proto.Collector.Metrics.V1;
-using OpenTelemetry.Proto.Metrics.V1;
+namespace OTLPView.Services;
 
-namespace OTLPView;
-
-public class MetricsServiceImpl : OpenTelemetry.Proto.Collector.Metrics.V1.MetricsService.MetricsServiceBase
+public class DefaultMetricsService : MetricsService.MetricsServiceBase
 {
-    private readonly ILogger<MetricsServiceImpl> _logger;
+    private readonly ILogger<DefaultMetricsService> _logger;
     private readonly TelemetryResults _telemetryResults;
     private readonly MetricsPageState _pageState;
-    public MetricsServiceImpl(ILogger<MetricsServiceImpl> logger, TelemetryResults telemetryResults, MetricsPageState state)
+    public DefaultMetricsService(ILogger<DefaultMetricsService> logger, TelemetryResults telemetryResults, MetricsPageState state)
     {
         _logger = logger;
         _telemetryResults = telemetryResults;
         _pageState = state;
     }
 
-    public override Task<OpenTelemetry.Proto.Collector.Metrics.V1.ExportMetricsServiceResponse> Export(OpenTelemetry.Proto.Collector.Metrics.V1.ExportMetricsServiceRequest request, ServerCallContext context)
+    public override Task<ExportMetricsServiceResponse> Export(ExportMetricsServiceRequest request, ServerCallContext context)
     {
         ProcessGrpcResourceMetrics(request.ResourceMetrics);
         _pageState.DataChanged();

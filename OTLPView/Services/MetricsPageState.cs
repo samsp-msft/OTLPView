@@ -1,6 +1,4 @@
 using OTLPView;
-using OTLPView.DataModel;
-using OTLPView.Pages;
 
 public class MetricsPageState
 {

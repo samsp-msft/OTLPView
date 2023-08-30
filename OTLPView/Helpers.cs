@@ -1,8 +1,3 @@
-using System.Text;
-using System.Web;
-using Google.Protobuf.Collections;
-using OpenTelemetry.Proto.Common.V1;
-
 namespace OTLPView;
 
 public static class Helpers
@@ -100,17 +95,17 @@ public static class Helpers
     private const long TicksPerMinute = TicksPerSecond * 60;
     private const long TicksPerHour = TicksPerMinute * 60;
     private const long TicksPerDay = TicksPerHour * HoursPerDay;
-    private const long UnixEpochTicks = DaysTo1970 * TicksPerDay;
+    private const long UnixEpochTicks = DaysTo1970 * TicksPerDay; // Use DateTimeOffset.UnixEpoch.Ticks instead
 
     public static DateTime UnixNanoSecondsToDateTime(ulong unixTimeNanoSeconds)
     {
-        var milliseconds = (long)unixTimeNanoSeconds / 1000000;
+        var milliseconds = (long)unixTimeNanoSeconds / 1_000_000;
         return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds).DateTime;
     }
 
     public static string ToHexString(this Google.Protobuf.ByteString bytes)
     {
-        if (bytes is null || bytes.Length == 0)
+        if (bytes is null or { Length: 0 })
         {
             return null;
         }

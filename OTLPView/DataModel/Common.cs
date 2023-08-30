@@ -1,13 +1,9 @@
-using System.Collections.Concurrent;
-using OpenTelemetry.Proto.Resource.V1;
-
 namespace OTLPView.DataModel;
 
 public class OtlpApplication
 {
     public const string SERVICE_NAME = "service.name";
     public const string SERVICE_INSTANCE_ID = "service.instance.id";
-
 
     public string ApplicationName { get; init; }
     public string InstanceId { get; init; }

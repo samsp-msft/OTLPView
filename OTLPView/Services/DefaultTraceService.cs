@@ -1,18 +1,12 @@
-using Google.Protobuf.Collections;
-using Grpc.Core;
-using OpenTelemetry.Proto.Collector.Trace.V1;
-using OTLPView.DataModel;
-using Otel = OpenTelemetry.Proto.Trace.V1;
+namespace OTLPView.Services;
 
-namespace OTLPView;
-
-public class TraceServiceImpl : OpenTelemetry.Proto.Collector.Trace.V1.TraceService.TraceServiceBase
+public class DefaultTraceService : TraceService.TraceServiceBase
 {
-    private readonly ILogger<TraceServiceImpl> _logger;
+    private readonly ILogger<DefaultTraceService> _logger;
     private readonly TelemetryResults _telemetryResults;
     private readonly TracesPageState _pageState;
 
-    public TraceServiceImpl(ILogger<TraceServiceImpl> logger, TelemetryResults telemetryResults, TracesPageState pageState)
+    public DefaultTraceService(ILogger<DefaultTraceService> logger, TelemetryResults telemetryResults, TracesPageState pageState)
     {
         _logger = logger;
         _telemetryResults = telemetryResults;

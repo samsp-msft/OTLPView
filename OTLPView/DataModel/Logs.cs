@@ -1,5 +1,3 @@
-using OpenTelemetry.Proto.Logs.V1;
-
 namespace OTLPView.DataModel;
 
 public class OtlpLogEntry
@@ -7,7 +5,7 @@ public class OtlpLogEntry
     public Dictionary<string, string> Properties { get; init; }
     public DateTime TimeStamp { get; init; }
     public uint flags { get; init; }
-    public Microsoft.Extensions.Logging.LogLevel Severity { get; init; }
+    public LogLevel Severity { get; init; }
     public string Message { get; init; }
     public string SpanId { get; init; }
     public string TraceId { get; init; }

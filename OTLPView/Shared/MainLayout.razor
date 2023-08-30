@@ -1,19 +1,31 @@
-﻿@inherits             LayoutComponentBase
+@inherits LayoutComponentBase
 
-<PageTitle>OTLPView</PageTitle>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" Size="Size.Large"
+            OnClick="@DrawerToggle" />
+        <MudText Typo="Typo.h5" Class="ml-3">OTLP View</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Size="Size.Large"
+                       Title="Visit the GitHub repository for this dashboard."
+                       Href="https://github.com/samsp-msft/OTLPView" Target="_blank" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
-    </div>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

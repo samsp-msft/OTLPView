@@ -1,10 +1,6 @@
 using System.Collections.Concurrent;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Google.Protobuf.Collections;
-using OpenTelemetry.Proto.Common.V1;
-using OpenTelemetry.Proto.Metrics.V1;
 
 namespace OTLPView;
 

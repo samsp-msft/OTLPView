@@ -1,6 +1,4 @@
-using OTLPView.Pages;
-
-namespace OTLPView;
+namespace OTLPView.Services;
 
 public class LogsPageState
 {
