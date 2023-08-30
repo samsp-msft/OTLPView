@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OTLPView;
-using OTLPView.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

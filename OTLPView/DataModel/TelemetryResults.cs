@@ -16,18 +16,18 @@ namespace OTLPView
         private readonly ConcurrentDictionary<string, TraceOperation> _operations = new();
         //Using a list to keep the order of operations, but need to be careful about concurrency
         private readonly List<TraceOperation> _operationStack = new();
-       
+
         public ConcurrentBag<OtlpLogEntry> Logs { get; init; } = new();
         public ConcurrentDictionary<int, string> LogPropertyKeys { get; } = new();
 
 
         public IReadOnlyList<TraceOperation> Operations => (IReadOnlyList<TraceOperation>)_operationStack;
         public IReadOnlyDictionary<string, OtlpApplication> Applications => _applications;
-   
+
 
         public TelemetryResults(IConfiguration config)
         {
-           MAX_OPERATION_COUNT = config.GetValue<int>("MaxOperationCount",1000);
+            MAX_OPERATION_COUNT = config.GetValue<int>("MaxOperationCount", 1000);
         }
 
         internal TraceOperation GetOrAddOperation(string operationId)
@@ -39,7 +39,7 @@ namespace OTLPView
                     if (_operations.Count >= MAX_OPERATION_COUNT)
                     {
                         var dead_operation = _operationStack[MAX_OPERATION_COUNT - 1];
-                        _operationStack.RemoveAt(MAX_OPERATION_COUNT -1);
+                        _operationStack.RemoveAt(MAX_OPERATION_COUNT - 1);
                         _operations.TryRemove(dead_operation.OperationId, out _);
                     }
                     operation = new TraceOperation() { OperationId = operationId };
@@ -57,7 +57,7 @@ namespace OTLPView
                 return null;
             }
             var serviceId = resource.GetServiceId();
-            return _applications.GetOrAdd(serviceId, _=> new OtlpApplication(resource, Applications));
+            return _applications.GetOrAdd(serviceId, _ => new OtlpApplication(resource, Applications));
         }
 
         #region JSON Serialization

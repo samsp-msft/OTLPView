@@ -41,7 +41,7 @@
         @if (state.SelectedApp is not null)
         {
             <div class="MeterListContents">
-                @foreach (var m in state.SelectedApp?.Meters.Values)
+                @foreach (var m in state.SelectedApp?.Meters?.Values ?? Array.Empty<MeterResult>())
                 {
                     <div class="MeterListItem">
                         <h3>@m.MeterName</h3>
@@ -171,7 +171,7 @@
     public void SelectMeter(MeterResult m)
     {
         state.SelectedMeter = m;
-        state.SelectedMetric = state.SelectedMeter.Counters.Values.First();
+        state.SelectedMetric = m.Counters.Values.First();
     }
 
     public string IsMeterSelected(MeterResult o, string cssClass) => cssClass + ((state.SelectedMeter == o) ? " Selected" : "");

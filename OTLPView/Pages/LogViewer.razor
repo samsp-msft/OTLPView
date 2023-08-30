@@ -14,7 +14,7 @@
         <PropertyColumn Property="@(l => l.OriginalFormat)" Sortable="true" />
         <PropertyColumn Property="@(l => l.SpanId)" Sortable="true" />
         <TemplateColumn Title="TraceId">
-            <span class="ClickableColumn" onclick="@(() => FilterByTraceId(context))">@context.TraceId</span>
+            <span class="ClickableColumn" onclick="@(async () => await FilterByTraceId(context))">@context.TraceId</span>
         </TemplateColumn>
         @if (HasLogData)
         {
@@ -38,34 +38,31 @@
 
 </div>
 @code {
-    IQueryable<OtlpLogEntry> LogEntries;
+    IQueryable<OtlpLogEntry>? LogEntries;
     QuickGrid<OtlpLogEntry> logGrid;
 
     bool HasLogData => telemetryResults.Applications.Count > 0;
 
     private string TraceIdFilter = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         state.SetPage(this);
-        UpdateQuery();
+
+        await UpdateQuery();
     }
 
-    public void Update()
-    {
-        InvokeAsync(() => StateHasChanged());
-        UpdateQuery();
-    }
+    public Task Update() => UpdateQuery();
 
-    public void FilterByTraceId(OtlpLogEntry entry)
+    public async Task FilterByTraceId(OtlpLogEntry entry)
     {
         TraceIdFilter = entry.TraceId;
-        UpdateQuery();
+        await UpdateQuery();
     }
 
     async Task UpdateQuery()
     {
-        if (telemetryResults.Logs.Count == 0)
+        if (telemetryResults is { Logs.Count: 0 })
         {
             LogEntries = null;
             return;
@@ -75,6 +72,7 @@
         {
             LogEntries = LogEntries.Where(l => l.TraceId == TraceIdFilter).AsQueryable();
         }
-        InvokeAsync(() => StateHasChanged());
+
+        await InvokeAsync(StateHasChanged);
     }
 }

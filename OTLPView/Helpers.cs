@@ -1,7 +1,7 @@
-using Google.Protobuf.Collections;
-using OpenTelemetry.Proto.Common.V1;
 using System.Text;
 using System.Web;
+using Google.Protobuf.Collections;
+using OpenTelemetry.Proto.Common.V1;
 
 namespace OTLPView
 {
@@ -58,21 +58,15 @@ namespace OTLPView
 
         public static string ValueString(this AnyValue value)
         {
-            switch (value.ValueCase)
+            return value.ValueCase switch
             {
-                case AnyValue.ValueOneofCase.StringValue:
-                    return value.StringValue;
-                case AnyValue.ValueOneofCase.IntValue:
-                    return value.IntValue.ToString();
-                case AnyValue.ValueOneofCase.DoubleValue:
-                    return value.DoubleValue.ToString();
-                case AnyValue.ValueOneofCase.BoolValue:
-                    return value.BoolValue.ToString();
-                case AnyValue.ValueOneofCase.BytesValue:
-                    return value.BytesValue.ToHexString();
-                default:
-                    return value.ToString();
-            }
+                AnyValue.ValueOneofCase.StringValue => value.StringValue,
+                AnyValue.ValueOneofCase.IntValue => value.IntValue.ToString(),
+                AnyValue.ValueOneofCase.DoubleValue => value.DoubleValue.ToString(),
+                AnyValue.ValueOneofCase.BoolValue => value.BoolValue.ToString(),
+                AnyValue.ValueOneofCase.BytesValue => value.BytesValue.ToHexString(),
+                _ => value.ToString(),
+            };
         }
 
         public static Dictionary<string, string> ToDictionary(this RepeatedField<KeyValue> attributes)

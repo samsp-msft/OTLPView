@@ -1,12 +1,8 @@
 using Google.Protobuf.Collections;
 using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Trace.V1;
-using System.Collections.Concurrent;
-using System.Text.Json.Serialization;
-using static OTLPView.TraceServiceImpl;
-using Otel = OpenTelemetry.Proto.Trace.V1;
 using OTLPView.DataModel;
-using OpenTelemetry.Proto.Common.V1;
+using Otel = OpenTelemetry.Proto.Trace.V1;
 
 namespace OTLPView
 {

@@ -1,6 +1,6 @@
-using OpenTelemetry.Proto.Common.V1;
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
+using OpenTelemetry.Proto.Common.V1;
 using Otel = OpenTelemetry.Proto.Trace.V1;
 
 namespace OTLPView.DataModel;

@@ -1,15 +1,11 @@
 // <WholeProgram>
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Azure;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
-using Microsoft.Extensions.Options;
-using Azure.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,7 +97,7 @@ app.MapGet("/NestedGreeting", SendNestedGreeting);
 app.Run();
 
 
-async Task<String> SendGreeting(ILogger<Program> logger)
+async Task<string> SendGreeting(ILogger<Program> logger)
 {
     // Create a new Activity scoped to the method
     using var activity = greeterActivitySource.StartActivity("GreeterActivity");
@@ -137,8 +133,8 @@ async Task SendNestedGreeting(int nestlevel, ILogger<Program> logger, HttpContex
 
         var thread = new Thread(() =>
         {
-            Random random = new Random();
-            for (int i = 0; i < random.Next(10); i++)
+            var random = Random.Shared;
+            for (var i = 0; i < random.Next(10); i++)
             {
                 var delay = random.Next(1, 20);
                 Thread.Sleep(delay);
@@ -153,9 +149,11 @@ async Task SendNestedGreeting(int nestlevel, ILogger<Program> logger, HttpContex
         {
             var request = context.Request;
             var host = request.Host.ToString();
-            if (isTestCmd) {
-                var random = new Random();
-                host = $"localhost:{random.Next(5000,5005)}"; }
+            if (isTestCmd)
+            {
+                var random = Random.Shared;
+                host = $"localhost:{random.Next(5000, 5005)}";
+            }
 
 
             var url = new Uri($"{request.Scheme}://{host}{request.Path}?nestlevel={nestlevel - 1}");

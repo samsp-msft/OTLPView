@@ -1,20 +1,8 @@
-using Google.Protobuf;
+using System.Diagnostics;
 using Google.Protobuf.Collections;
 using Grpc.Core;
-using OpenTelemetry.Proto.Common.V1;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Runtime.CompilerServices;
-using System.Collections.Concurrent;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Logs.V1;
-using OpenTelemetry.Proto.Resource.V1;
-using System.Diagnostics;
 using OTLPView.DataModel;
 
 namespace OTLPView

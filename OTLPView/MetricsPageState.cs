@@ -1,6 +1,6 @@
 using OTLPView;
-using OTLPView.Pages;
 using OTLPView.DataModel;
+using OTLPView.Pages;
 
 public class MetricsPageState
 {
@@ -17,9 +17,10 @@ public class MetricsPageState
     }
 
     private OtlpApplication _selectedService;
-    public OtlpApplication SelectedApp {
-        get        {return _selectedService;}
-        
+    public OtlpApplication SelectedApp
+    {
+        get { return _selectedService; }
+
         set
         {
             _selectedService = value;
