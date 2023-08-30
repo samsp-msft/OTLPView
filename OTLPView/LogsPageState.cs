@@ -1,21 +1,12 @@
-﻿using OTLPView.Pages;
+using OTLPView.Pages;
 
-namespace OTLPView
+namespace OTLPView;
+
+public class LogsPageState
 {
-    public class LogsPageState
-    {
+    private LogViewer? _page;
 
-        private LogViewer _page;
+    public void SetPage(LogViewer page) => _page = page;
 
-        public void SetPage(LogViewer page)
-        {
-            _page = page;
-        }
-
-        public void DataChanged()
-        {
-            if (_page is not null)
-                _page.Update();
-        }
-    }
+    public Task DataChanged() => _page?.Update() ?? Task.CompletedTask;
 }

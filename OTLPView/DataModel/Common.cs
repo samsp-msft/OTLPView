@@ -58,10 +58,7 @@ public class OtlpApplication
     private readonly ConcurrentDictionary<string, MeterResult> _meters = new();
     public IReadOnlyDictionary<string, MeterResult> Meters => _meters;
 
-    public MeterResult GetOrAddMeter(string meterName, Func<string, MeterResult> itemFactory)
-    {
-        return _meters.GetOrAdd(meterName, _ => itemFactory.Invoke(meterName));
-    }
+    public MeterResult GetOrAddMeter(string meterName, Func<string, MeterResult> itemFactory) => _meters.GetOrAdd(meterName, _ => itemFactory.Invoke(meterName));
     #endregion
 
 
@@ -70,10 +67,7 @@ public class OtlpApplication
     private readonly ConcurrentDictionary<string, TraceScope> _scopes = new();
     public IReadOnlyDictionary<string, TraceScope> Scopes => _scopes;
 
-    public TraceScope GetOrAddTrace(string scopeName, Func<string, TraceScope> itemFactory)
-    {
-        return _scopes.GetOrAdd(scopeName, _ => itemFactory.Invoke(scopeName));
-    }
+    public TraceScope GetOrAddTrace(string scopeName, Func<string, TraceScope> itemFactory) => _scopes.GetOrAdd(scopeName, _ => itemFactory.Invoke(scopeName));
     #endregion
 
 

@@ -75,7 +75,7 @@ public class TraceSpan
     public TimeSpan Duration => EndTime - StartTime;
     public TraceSpan RootSpan => ParentSpan is null ? this : ParentSpan.RootSpan;
 
-    public bool NotParented => (ParentSpanId is not null && ParentSpan is null);
+    public bool NotParented => ParentSpanId is not null && ParentSpan is null;
 
     public TraceSpan(Otel.Span s, TraceOperation operation, OtlpApplication traceSource, TraceScope scope)
     {

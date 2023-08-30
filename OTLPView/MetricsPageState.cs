@@ -6,10 +6,7 @@ public class MetricsPageState
 {
     private Metrics _page;
 
-    public void SetPage(Metrics page)
-    {
-        _page = page;
-    }
+    public void SetPage(Metrics page) => _page = page;
 
     public void DataChanged()
     {

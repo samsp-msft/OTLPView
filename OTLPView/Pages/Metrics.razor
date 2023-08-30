@@ -176,10 +176,7 @@
 
     public string IsMeterSelected(MeterResult o, string cssClass) => cssClass + ((state.SelectedMeter == o) ? " Selected" : "");
 
-    public void SelectMetric(Counter c)
-    {
-        state.SelectedMetric = c;
-    }
+        public void SelectMetric(Counter c) => state.SelectedMetric = c;
 
-    public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
+        public string IsMetricSelected(Counter o, string cssClass) => cssClass + ((state.SelectedMetric == o) ? " Selected" : "");
 }

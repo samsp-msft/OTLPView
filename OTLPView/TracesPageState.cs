@@ -25,10 +25,7 @@ public class TracesPageState
             _page.Update();
         }
     }
-    public void SetPage(Traces page)
-    {
-        _page = page;
-    }
+    public void SetPage(Traces page) => _page = page;
 
     public void DataChanged()
     {
