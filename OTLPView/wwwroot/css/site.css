@@ -1,3 +1,10 @@
+code {
+    font-family: Consolas, "Courier New", monospace;
+    border: solid 1px lightgrey;
+    border-radius: .4rem;
+    background-color: rgba(0,0,0,.05);
+    white-space: nowrap;
+}
 
 #blazor-error-ui {
     background: lightyellow;

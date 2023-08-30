@@ -1,13 +1,17 @@
 <MudDialog>
     <DialogContent>
-        <MudTable Items="@Properties" Hover="true">
+        <MudTable Items="@Properties" Hover="true" Class="pa-0 ma-0">
             <HeaderContent>
                 <MudTh>Key</MudTh>
                 <MudTh>Value</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Key">@context.Key</MudTd>
-                <MudTd DataLabel="Value">@context.Value</MudTd>
+                <MudTd DataLabel="Key">
+                    <strong>@context.Key</strong>
+                </MudTd>
+                <MudTd DataLabel="Value">
+                    <code class="px-2 py-1">@context.Value</code>
+                </MudTd>
             </RowTemplate>
         </MudTable>
     </DialogContent>
