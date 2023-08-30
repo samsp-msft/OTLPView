@@ -1,7 +1,3 @@
-using OTLPView;
-using OTLPView.Pages;
-using OTLPView.DataModel;
-
 public class TracesPageState
 {
     private Traces _page;
@@ -26,10 +22,7 @@ public class TracesPageState
             _page.Update();
         }
     }
-    public void SetPage(Traces page)
-    {
-        _page = page;
-    }
+    public void SetPage(Traces page) => _page = page;
 
     public void DataChanged()
     {

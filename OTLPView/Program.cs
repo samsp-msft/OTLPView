@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using OpenTelemetry.Proto.Collector.Metrics.V1;
-using OTLPView;
-using OTLPView.Data;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,18 +9,19 @@ builder.Services.AddSingleton<MetricsPageState>();
 builder.Services.AddSingleton<LogsPageState>();
 
 builder.Services.AddGrpc();
+builder.Services.AddMudServices();
 
-var OTLPPort = builder.Configuration.GetValue<int>("OTLP_PORT", 4317);
-var WebPorts = builder.Configuration.GetValue<string>("ASPNETCORE_HTTP_PORTS", "8080").Split(',').Select(p => int.Parse(p)).ToArray();
+var otlpPort = builder.Configuration.GetValue("OTLP_PORT", 4317);
+var webPorts = builder.Configuration.GetValue("ASPNETCORE_HTTP_PORTS", "8080")!.Split(',').Select(p => int.Parse(p)).ToArray();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(OTLPPort, listenOptions =>
+    options.ListenAnyIP(otlpPort, listenOptions =>
     {
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
         listenOptions.UseHttps();
     });
-    foreach (var port in WebPorts)
+    foreach (var port in webPorts)
     {
         options.ListenAnyIP(port, listenOptions =>
         {
@@ -35,7 +30,6 @@ builder.WebHost.ConfigureKestrel(options =>
         });
     }
 });
-
 
 var app = builder.Build();
 
@@ -47,9 +41,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.MapGrpcService<MetricsServiceImpl>();
-app.MapGrpcService<TraceServiceImpl>();
-app.MapGrpcService<LogsServiceImpl>();
+app.MapGrpcService<DefaultMetricsService>();
+app.MapGrpcService<DefaultTraceService>();
+app.MapGrpcService<DefaultLogsService>();
 
 app.UseHttpsRedirection();
 

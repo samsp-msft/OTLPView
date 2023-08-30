@@ -1,80 +1,61 @@
 @page "/"
-@inject TelemetryResults telemetryResults
-@inject LogsPageState state
-@using Microsoft.AspNetCore.Components.QuickGrid
-@using OTLPView.DataModel
 
 <PageTitle>Logs</PageTitle>
-<div class="GridConstraint">
-<div class="GridContainer">
-    <QuickGrid Items="@LogEntries" @ref="logGrid" Virtualize="true">
-        <PropertyColumn Property="@(l => l.Application.ShortApplicationName.HtmlEncode())" Sortable="true" />
-        <PropertyColumn Property="@(l => l.Severity)" Sortable="true" />
-        <PropertyColumn Property="@(l => l.TimeStamp.ToLocalTime())" Format="hh:mm:ss.fff" Sortable="true" Title="Timestamp" />
-        <PropertyColumn Property="@(l => l.OriginalFormat)" Sortable="true" />
-        <PropertyColumn Property="@(l => l.SpanId)" Sortable="true" />
-        <TemplateColumn Title="TraceId">
-            <span class="ClickableColumn" onclick="@(() => FilterByTraceId(context))">@context.TraceId</span>
-        </TemplateColumn>
-        @if (HasLogData)
-        {
-            @foreach (var column in telemetryResults.LogPropertyKeys.Values)
-            {
-                <PropertyColumn Property="@(l => l.Properties.ValueOrDefault(column,""))" Sortable="true" Title="@column" />
-            }
-        }
-    </QuickGrid>
-</div>
-</div>
-<div class="SidePanel">
-    <div> Filtering controls will go here:
-        <p> Select a TraceID to filter by it</p>
-        <p> Select a spanId to see it and its children</p>
-        <p> Select a message to only see them</p>
-        <p> select an application to only show it's messages</p>
-        <p>etc.</p>
-       
-    </div>
 
-</div>
-@code {
-    IQueryable<OtlpLogEntry> LogEntries;
-    QuickGrid<OtlpLogEntry> logGrid;
-
-    bool HasLogData => telemetryResults.Applications.Count > 0;
-
-    private string TraceIdFilter = "";
-
-    protected override void OnInitialized()
-    {
-        state.SetPage(this);
-        UpdateQuery();
-    }
-
-    public void Update()
-    {
-        InvokeAsync(() => StateHasChanged());
-        UpdateQuery();
-    }
-
-    public void FilterByTraceId(OtlpLogEntry entry)
-    {
-        TraceIdFilter = entry.TraceId;
-        UpdateQuery();
-    }
-
-    async Task UpdateQuery()
-    {
-        if (telemetryResults.Logs.Count == 0)
-        {
-            LogEntries = null;
-            return;
-        }
-        LogEntries = telemetryResults.Logs.AsQueryable();
-        if (!string.IsNullOrEmpty(TraceIdFilter))
-        {
-            LogEntries = LogEntries.Where(l => l.TraceId == TraceIdFilter).AsQueryable();
-        }
-        InvokeAsync(() => StateHasChanged());
-    }
+@if (_logEntries is null or { Count: 0 })
+{
+    <SimpleBanner TitleText="No logs found"
+                  BodyText="As logs are written, they will be displayed here." />
+}
+else
+{
+    <MudTable Items="@_logEntries" Dense="true" Hover="true" Virtualize="true"
+              Filter="new Func<OtlpLogEntry, bool>(OnApplyFilter)">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Log Entries</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_filter" Clearable="true" Placeholder="Filter"
+                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.Application.ShortApplicationName)">Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.Severity)">Severity</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.TimeStamp)">Timestamp</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.OriginalFormat)">Format</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.SpanId)">Span</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.TraceId)">Trace Id</MudTableSortLabel></MudTh>
+            <MudTh>Properties</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Application.ShortApplicationName.HtmlEncode()</MudTd>
+            <MudTd DataLabel="Severity">@context.Severity</MudTd>
+            <MudTd DataLabel="Timestamp">@context.TimeStamp.ToLocalTime()</MudTd>
+            <MudTd DataLabel="Format">@context.OriginalFormat</MudTd>
+            <MudTd DataLabel="Span">@context.SpanId</MudTd>
+            <MudTd DataLabel="Trace Id">
+                <MudLink OnClick="@(() => OnFilterByTraceId(context.TraceId))" Underline="Underline.Always">
+                    @context.TraceId
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Properties">
+                @if (HasLogData)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Preview"
+                                   Color="Color.Primary" Size="Size.Large"
+                                   OnClick="(async () => await OnShowProperties(context))">
+                    </MudIconButton>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.DoNotDisturb"
+                             Color="Color.Error" Size="Size.Large">
+                    </MudIcon>
+                }
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
 }

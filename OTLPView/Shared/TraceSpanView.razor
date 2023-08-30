@@ -60,10 +60,7 @@
         }
     }
 
-    private void UpdateSelection()
-    {
-        state.SelectedSpan = Span;
-    }
+        private void UpdateSelection() => state.SelectedSpan = Span;
 
-    string BarColor => (state.SelectedSpan == Span) ? "#4D5788" : Span.TraceScope.BarColor;
+        string BarColor => (state.SelectedSpan == Span) ? "#4D5788" : Span.TraceScope.BarColor;
 }
