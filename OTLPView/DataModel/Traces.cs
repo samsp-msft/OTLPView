@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
-using OTLPView.Extensions;
 
 namespace OTLPView.DataModel;
 

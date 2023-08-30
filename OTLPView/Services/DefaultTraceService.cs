@@ -1,5 +1,3 @@
-using OTLPView.Extensions;
-
 namespace OTLPView.Services;
 
 public class DefaultTraceService : TraceService.TraceServiceBase

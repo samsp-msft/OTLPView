@@ -1,5 +1,3 @@
-using OTLPView.Extensions;
-
 namespace OTLPView.DataModel;
 
 public class OtlpApplication

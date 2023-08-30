@@ -4,14 +4,8 @@
 
 @if (_logEntries is null or { Count: 0 })
 {
-    <MudPaper Class="pa-16 ma-2" Elevation="3">
-        <MudText Typo="Typo.h6">
-            No logs found
-        </MudText>
-        <MudText Typo="Typo.body1">
-            As logs are written, they will be displayed here.
-        </MudText>
-    </MudPaper>
+    <SimpleBanner TitleText="No logs found"
+                  BodyText="As logs are written, they will be displayed here." />
 }
 else
 {

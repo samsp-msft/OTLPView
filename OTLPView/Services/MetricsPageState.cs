@@ -1,5 +1,3 @@
-using OTLPView;
-
 public class MetricsPageState
 {
     private Metrics _page;

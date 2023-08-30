@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using System.Text.Json;
-using OpenTelemetry.Proto.Resource.V1;
 
 namespace OTLPView;
 
