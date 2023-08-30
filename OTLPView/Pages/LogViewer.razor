@@ -9,7 +9,7 @@
 }
 else
 {
-    <MudTable Items="@_logEntries" Dense="true" Hover="true" Striped="true" Virtualize="true"
+    <MudTable Items="@_logEntries" Dense="true" Hover="true" Virtualize="true"
               Filter="new Func<OtlpLogEntry, bool>(OnApplyFilter)">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Log Entries</MudText>
