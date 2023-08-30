@@ -1,4 +1,4 @@
-namespace OTLPView;
+namespace OTLPView.Extensions;
 
 public static class Helpers
 {
@@ -107,7 +107,7 @@ public static class Helpers
     {
         if (bytes is null or { Length: 0 })
         {
-            return null;
+            return null!;
         }
         var sb = new StringBuilder();
         foreach (var b in bytes)

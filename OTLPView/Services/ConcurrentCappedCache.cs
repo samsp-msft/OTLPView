@@ -1,4 +1,4 @@
-namespace OTLPView;
+namespace OTLPView.Services;
 
 public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
 {

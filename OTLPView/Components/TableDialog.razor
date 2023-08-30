@@ -1,0 +1,22 @@
+<MudDialog>
+    <DialogContent>
+        <MudTable Items="@Properties" Hover="true">
+            <HeaderContent>
+                <MudTh>Key</MudTh>
+                <MudTh>Value</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Key">@context.Key</MudTd>
+                <MudTd DataLabel="Value">@context.Value</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Size="Size.Large"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Check"
+                   OnClick="@Ok" Class="mr-4 mb-4">
+            Ok
+        </MudButton>
+    </DialogActions>
+</MudDialog>
