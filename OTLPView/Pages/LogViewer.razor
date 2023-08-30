@@ -8,7 +8,7 @@
 <div class="GridConstraint">
 <div class="GridContainer">
     <QuickGrid Items="@LogEntries" @ref="logGrid" Virtualize="true">
-        <PropertyColumn Property="@(l => l.Application.ApplicationName)" Sortable="true" />
+        <PropertyColumn Property="@(l => l.Application.ShortApplicationName.HtmlEncode())" Sortable="true" />
         <PropertyColumn Property="@(l => l.Severity)" Sortable="true" />
         <PropertyColumn Property="@(l => l.TimeStamp.ToLocalTime())" Format="hh:mm:ss.fff" Sortable="true" Title="Timestamp" />
         <PropertyColumn Property="@(l => l.OriginalFormat)" Sortable="true" />

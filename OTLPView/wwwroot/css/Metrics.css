@@ -17,6 +17,7 @@
 .ApplicationsList {
     display: block;
     height: 40%;
+    overflow-y:scroll;
 }
 
 .ApplicationsListTitle h2 {
@@ -90,6 +91,7 @@
 .MetricList {
     display: block;
     height: 40%;
+    overflow-y: scroll;
 }
 
 .MetricListTitle h2 {

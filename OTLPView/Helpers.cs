@@ -1,6 +1,7 @@
 using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
 using System.Text;
+using System.Web;
 
 namespace OTLPView
 {
@@ -48,6 +49,11 @@ namespace OTLPView
                 return value;
             }
             return value.Substring(value.Length - length, length);
+        }
+
+        public static string HtmlEncode(this string text)
+        {
+            return HttpUtility.HtmlEncode(text);
         }
 
         public static string ValueString(this AnyValue value)
@@ -135,7 +141,7 @@ namespace OTLPView
         public static string ToHexString(this Google.Protobuf.ByteString bytes)
         {
 
-      
+
 
             if (bytes is null || bytes.Length == 0)
             {
@@ -187,6 +193,6 @@ namespace OTLPView
         new int [] { 0xfbeaee, 0xf6d5dd, 0xf2c0cc, 0xedabbb, 0xe996ab, 0xe4819a, 0xe06c89, 0xdb5778, 0xd74267, 0xd22d56, 0xbd284d, 0xa82445, 0x931f3c, 0x7e1b34, 0x541222}
         };
 
-    
+
     }
 }

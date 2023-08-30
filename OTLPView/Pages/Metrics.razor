@@ -14,9 +14,13 @@
             @foreach (var app in telemetryResults.Applications.Values)
             {
                 <div class="@IsAppSelected(app,"ApplicationsListItem" )" @onclick="@(_ => SelectApp(app))">
-                    <h3>@app.ApplicationName</h3>
+                    <h3>@app.UniqueApplicationName</h3>
                     <table class="ServiceDescription">
                         <tdata>
+                            <tr>
+                                <td class="Property">Instance Id:</td>
+                                <td class="Value">@app.InstanceId</td>
+                            </tr>
                             @foreach (var p in app.Properties)
                             {
                                 <tr>

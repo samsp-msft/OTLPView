@@ -50,7 +50,7 @@ public class OtlpApplication
         get
         {
             var n = ApplicationName + Suffix.ToString();
-            return (n.Length <= 10) ? n : $"{ApplicationName.Left(3)}_{ApplicationName.Right(5)}{Suffix}";
+            return (n.Length <= 10) ? n : $"{ApplicationName.Left(3)}…{ApplicationName.Right(5)}{Suffix}";
         }
     }
 
