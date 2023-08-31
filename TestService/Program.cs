@@ -1,11 +1,14 @@
 // <WholeProgram>
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using Azure.Core;
+using Google.Protobuf.WellKnownTypes;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,10 +55,8 @@ otel.WithMetrics(metrics =>
         // Metrics provider from OpenTelemetry
         .AddMeter(greeterMeter.Name)
 
-        // Metrics provides by ASP.NET Core in .NET 8
-        .AddMeter("Microsoft.AspNetCore.Hosting")
-        .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-        .AddMeter("System.Net.Http")
+       // Metrics provides by ASP.NET Core in .NET 8
+       .AddAspNetCore8Instrumentation()
 
         .AddOtlpExporter((otlpOptions, MetricReaderOptions) =>
         {
@@ -67,6 +68,7 @@ otel.WithMetrics(metrics =>
 
         });
 });
+
 
 // Add Tracing for ASP.NET Core and our custom ActivitySource and export to Jaeger
 otel.WithTracing(tracing =>
@@ -172,4 +174,27 @@ async Task SendNestedGreeting(int nestlevel, ILogger<Program> logger, HttpContex
     }
     var duration = (DateTime.UtcNow - now).TotalMilliseconds;
     logger.LogInformation("Greeting finished for {nestlevel} with duration {duration} ", nestlevel, duration);
+}
+
+public static class helpers
+{
+    public static MeterProviderBuilder AddAspNetCore8Instrumentation(this MeterProviderBuilder meterProviderBuilder)
+    {
+        var boundaries = new double[] { 0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 };
+        meterProviderBuilder.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http");
+
+        foreach (var v in new string[] {
+            "http-server-request-duration",
+            "http-server-current-requests",
+            "kestrel-connection-duration",
+            "http-client-connection-duration",
+            "http-client-requests-queue-duration",
+            "http-client-request-duration"
+        })
+        {
+            meterProviderBuilder.AddView(v, new ExplicitBucketHistogramConfiguration() { Boundaries = boundaries });
+        }
+        return meterProviderBuilder;
+    }
+
 }

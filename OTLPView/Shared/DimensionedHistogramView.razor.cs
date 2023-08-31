@@ -1,6 +1,6 @@
 namespace OTLPView.Shared;
 
-public sealed partial class DimensionedCounterView
+public sealed partial class DimensionedHistogramView
 {
     // Define the size of the graph based on the number of points and the duration of each point
     private const int GRAPH_POINT_COUNT = 18; // 3 minutes
@@ -8,8 +8,8 @@ public sealed partial class DimensionedCounterView
 
 
     private DimensionScope _dimension;
-    private string[] chartLabels;
-    private List<ChartSeries> chartValues;
+    private string[] _chartLabels;
+    private List<ChartSeries> _chartValues;
 
     [Parameter, EditorRequired]
     public required DimensionScope Dimension
@@ -18,12 +18,13 @@ public sealed partial class DimensionedCounterView
         set
         {
             _dimension = value;
-            chartValues = new List<ChartSeries>()
+            _chartLabels = CalcLabels((Dimension.Values?.First() as HistogramValue).ExplicitBounds);
+            _chartValues = new List<ChartSeries>()
             {
                 new ChartSeries()
                 {
                     Name = Counter?.CounterName ?? "unknown",
-                    Data = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE)
+                    Data = (Dimension.Values.First() as HistogramValue).Values.Select(v => (double)v).ToArray()
                 }
             };
         }
@@ -34,17 +35,16 @@ public sealed partial class DimensionedCounterView
 
     protected override void OnInitialized()
     {
-        chartLabels = CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
     }
 
-    private string[] CalcLabels(int pointCount, int pointSize)
+    private string[] CalcLabels(double[] bounds)
     {
-        var duration = pointSize * pointCount;
-        var labels = new string[pointCount];
-        for (var i = 0; i < pointCount; i++)
+        var labels = new string[bounds.Length+1];
+        for (var i = 0; i < bounds.Length; i++)
         {
-            labels[i] = (i < pointCount - 1) ? $"{(pointSize * (i + 1)) - duration}s" : "Now";
+            labels[i] = $"{bounds[i]}{Counter.CounterUnit??"s"}";
         }
+        labels[bounds.Length] = "Inf";
         return labels;
     }
 
@@ -94,7 +94,6 @@ public sealed partial class DimensionedCounterView
         }
         return values;
     }
-
 
 
 }

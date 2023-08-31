@@ -1,42 +1,64 @@
-<div class="DimensionBlock">
-    <h5 class="DimensionTitle">
-        @foreach (var kv in Dimension.Dimensions)
-        {
-            <span class="DimensionKey">@kv.Key: </span>
-
-            <span class="DimensionValue">@kv.Value</span>
-        }
-    </h5>
-    <div>
-        @foreach (var mValue in Dimension.Values)
-        {
-            @if (mValue is HistogramValue)
-            {
-                var hValue = mValue as HistogramValue;
-                <div class="HistogramValue">
-                    <span class="HistogramValueProperty">Count:</span>
-                    <span class="HistogramValuePropertyValue">@hValue.Count</span>
-                    <span class="HistogramValueProperty">Sum:</span>
-                    <span class="HistogramValuePropertyValue">@hValue.Sum</span>
-                    <span class="HistogramValueProperty">Buckets:</span>
-                    @if (hValue.Values is not null)
-                    {
-                        foreach (var v in hValue.Values)
+<MudPaper>
+    <MudCard>
+        <MudCardHeader>
+            <MudCardContent>
+                @if (Dimension.Dimensions.Count == 0)
+                {
+                    <MudText Typo="Typo.h5">[No dimension parameters]</MudText>
+                }
+                else
+                {
+                    <MudStack Row="true">
+                        @foreach (var kv in Dimension.Dimensions)
                         {
-                            <span class="HistogramValueEntry">@v</span>
+                            <MudText>
+                                <span class="DimensionKey">@kv.Key: </span>
+                                <span class="DimensionValue">@kv.Value</span>
+                            </MudText>
                         }
-                    }
-                </div>
-            }
-            else
-            {
-                <span class="MetricPointValue">@mValue.ToString()</span>
-            }
-        }
-    </div>
-</div>
+                    </MudStack>
+                }
+            </MudCardContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudStack Row="true">
+                <MudPaper>
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@_chartValues" XAxisLabels="@_chartLabels" Width="500x" Height="400px"></MudChart>
+                </MudPaper>
+                <MudPaper>
+                    <div>Recent Values:</div>
+                    <MudTable Items=@Dimension._values Dense="true">
+                        <NoRecordsContent>
+                            No records found for this dimension combination.
+                        </NoRecordsContent>
+                        <HeaderContent>
+                            @foreach (var label in _chartLabels)
+                            {
+                                <MudTh>@label</MudTh>
+                            }
+                            <MudTh>Sum</MudTh>
+                            <MudTh>Count</MudTh>
+                            <MudTh>Start Timestamp</MudTh>
+                            <MudTh>Last Timestamp</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            @foreach (var value in (context as HistogramValue).Values)
+                            {
+                            <MudTd>@value.ToString()</MudTd>
+                            }
+                            <MudTd DataLabel="Sum">@((context as HistogramValue).Sum.ToString("G"))</MudTd>
+                            <MudTd DataLabel="Count">@((context as HistogramValue).Count)</MudTd>
+                            <MudTd DataLabel="Start Timestamp">@context.Start.ToLocalTime().ToLongTimeString()</MudTd>
+                            <MudTd DataLabel="Last Timestamp">@context.End.ToLocalTime().ToLongTimeString()</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager HideRowsPerPage="true" />
+                        </PagerContent>
+                    </MudTable>
+                </MudPaper>
 
-@code {
-    [Parameter, EditorRequired]
-    public required DimensionScope Dimension { get; set; }
-}
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+</MudPaper>
+

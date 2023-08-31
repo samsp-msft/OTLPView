@@ -3,21 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace OTLPView;
 
-//public class MetricsApplication
-//{
-//    public OtlpApplication OtlpApplication { get; init; }
-
-//    public string ApplicationName => OtlpApplication.ApplicationName;
-//    public IReadOnlyDictionary<string, string> Properties => OtlpApplication.Properties;
-//    public ConcurrentDictionary<string, MeterResult> Meters { get; } = new();
-
-//    public MetricsApplication(OtlpApplication app)
-//    {
-//        OtlpApplication = app;
-//    }
-
-//}
-
 public class MeterResult
 {
     public string? MeterName { get; init; }
@@ -122,7 +107,10 @@ public class DimensionScope
 
     private Dictionary<string, string> _dimensions { get; init; }
     //public readonly ConcurrentCappedCache<MetricValueBase> _values = new(256);
-    public readonly ConcurrentBag<MetricValueBase> _values = new();
+    //public readonly ConcurrentBag<MetricValueBase> _values = new();
+    public readonly ConcurrentStack<MetricValueBase> _values = new();
+
+
     // Used to aid in merging values that are the same in a concurrent environment
     private MetricValueBase _lastValue;
 
@@ -147,7 +135,7 @@ public class DimensionScope
     {
         var start = Helpers.UnixNanoSecondsToDateTime(d.StartTimeUnixNano);
         var end = Helpers.UnixNanoSecondsToDateTime(d.TimeUnixNano);
-        Console.WriteLine($"{start.ToLocalTime().ToLongTimeString()} - {end.ToLocalTime().ToLongTimeString()} - {d.ValueCase} - {d.AsInt} - {d.AsDouble}");
+        //Console.WriteLine($"{start.ToLocalTime().ToLongTimeString()} - {end.ToLocalTime().ToLongTimeString()} - {d.ValueCase} - {d.AsInt} - {d.AsDouble}");
         if (d.ValueCase == NumberDataPoint.ValueOneofCase.AsInt)
         {
             var value = d.AsInt;
@@ -166,7 +154,8 @@ public class DimensionScope
                         start = lastLongValue.End;
                     }
                     _lastValue = new MetricValue<long>(d.AsInt, start, end);
-                    _values.Add(_lastValue);
+                    _values.Push(_lastValue);
+                    //_values.Add(_lastValue);
                 }
             }
         }
@@ -188,7 +177,8 @@ public class DimensionScope
                         start = lastDoubleValue.End;
                     }
                     _lastValue = new MetricValue<double>(d.AsDouble, start, end);
-                    _values.Add(_lastValue);
+                    //_values.Add(_lastValue);
+                    _values.Push(_lastValue);
                 }
             }
         }
@@ -198,7 +188,6 @@ public class DimensionScope
     {
         var start = Helpers.UnixNanoSecondsToDateTime(h.StartTimeUnixNano);
         var end = Helpers.UnixNanoSecondsToDateTime(h.TimeUnixNano);
-
         lock (this)
         {
             var lastHistogramValue = _lastValue as HistogramValue;
@@ -208,8 +197,13 @@ public class DimensionScope
             }
             else
             {
-                _lastValue = new HistogramValue(h.BucketCounts, h.Sum, h.Count, start, end);
-                _values.Add(_lastValue);
+                if (lastHistogramValue is not null)
+                {
+                    start = lastHistogramValue.End;
+                }
+                _lastValue = new HistogramValue(h.BucketCounts, h.Sum, h.Count, start, end, h.ExplicitBounds.ToArray());
+                //_values.Add(_lastValue);
+                _values.Push(_lastValue);
             }
         }
     }
@@ -243,12 +237,14 @@ public class HistogramValue : MetricValueBase
 {
     public ulong[] Values { get; init; }
     public double Sum { get; init; }
+    public double[]? ExplicitBounds { get; init; }
 
-    public HistogramValue(IList<ulong> values, double sum, ulong count, DateTime start, DateTime end) : base(start, end)
+    public HistogramValue(IList<ulong> values, double sum, ulong count, DateTime start, DateTime end, double[]? explicitBounds) : base(start, end)
     {
         Values = values?.ToArray();
         Sum = sum;
         Count = count;
+        ExplicitBounds = explicitBounds;
     }
 
     public override string ToString()
