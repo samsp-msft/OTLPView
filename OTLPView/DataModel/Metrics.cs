@@ -37,7 +37,7 @@ public class MeterResult
 
     public void ProcessGrpcMetricData(Metric mData)
     {
-        var counter = _counters.GetOrAdd(mData.Name, _ => new Counter(mData));
+        var counter = _counters.GetOrAdd(mData.Name, _ => new Counter(mData, this));
         counter.AddCounterValuesFromGrpc(mData);
     }
 }
@@ -49,15 +49,17 @@ public class Counter
     public string CounterDescription { get; init; }
     public string CounterUnit { get; init; }
     public Metric.DataOneofCase CounterType { get; init; }
+    public MeterResult Parent { get; init; }
 
     public IReadOnlyDictionary<int, DimensionScope> Dimensions => _dimensions;
 
-    public Counter(Metric mData)
+    public Counter(Metric mData, MeterResult parent)
     {
         CounterName = mData.Name;
         CounterDescription = mData.Description;
         CounterUnit = mData.Unit;
         CounterType = mData.DataCase;
+        Parent = parent;
     }
 
     public void AddCounterValuesFromGrpc(Metric mData)
@@ -119,13 +121,15 @@ public class DimensionScope
     public int Key { get; init; }
 
     private Dictionary<string, string> _dimensions { get; init; }
-    private readonly ConcurrentCappedCache<MetricValueBase> _values = new(256);
-
+    //public readonly ConcurrentCappedCache<MetricValueBase> _values = new(256);
+    public readonly ConcurrentBag<MetricValueBase> _values = new();
     // Used to aid in merging values that are the same in a concurrent environment
     private MetricValueBase _lastValue;
 
     public IEnumerable<MetricValueBase> Values => _values;
     public IReadOnlyDictionary<string, string> Dimensions => _dimensions;
+
+    public bool IsHistogram => (_values.FirstOrDefault() is HistogramValue);
 
     public DimensionScope(int key, RepeatedField<KeyValue> keyvalues)
     {
@@ -143,6 +147,7 @@ public class DimensionScope
     {
         var start = Helpers.UnixNanoSecondsToDateTime(d.StartTimeUnixNano);
         var end = Helpers.UnixNanoSecondsToDateTime(d.TimeUnixNano);
+        Console.WriteLine($"{start.ToLocalTime().ToLongTimeString()} - {end.ToLocalTime().ToLongTimeString()} - {d.ValueCase} - {d.AsInt} - {d.AsDouble}");
         if (d.ValueCase == NumberDataPoint.ValueOneofCase.AsInt)
         {
             var value = d.AsInt;
@@ -152,9 +157,14 @@ public class DimensionScope
                 if (lastLongValue is not null && lastLongValue.Value == value)
                 {
                     lastLongValue.End = end;
+                    Interlocked.Increment(ref lastLongValue.Count);
                 }
                 else
                 {
+                    if (lastLongValue is not null)
+                    {
+                        start = lastLongValue.End;
+                    }
                     _lastValue = new MetricValue<long>(d.AsInt, start, end);
                     _values.Add(_lastValue);
                 }
@@ -169,9 +179,14 @@ public class DimensionScope
                 if (lastDoubleValue is not null && lastDoubleValue.Value == d.AsDouble)
                 {
                     lastDoubleValue.End = end;
+                    Interlocked.Increment(ref lastDoubleValue.Count);
                 }
                 else
                 {
+                    if (lastDoubleValue is not null)
+                    {
+                        start = lastDoubleValue.End;
+                    }
                     _lastValue = new MetricValue<double>(d.AsDouble, start, end);
                     _values.Add(_lastValue);
                 }
@@ -204,6 +219,7 @@ public abstract class MetricValueBase
 {
     public readonly DateTime Start;
     public DateTime End { get; set; }
+    public ulong Count = 1;
 
     protected MetricValueBase(DateTime start, DateTime end)
     {
@@ -227,7 +243,7 @@ public class HistogramValue : MetricValueBase
 {
     public ulong[] Values { get; init; }
     public double Sum { get; init; }
-    public ulong Count { get; init; }
+
     public HistogramValue(IList<ulong> values, double sum, ulong count, DateTime start, DateTime end) : base(start, end)
     {
         Values = values?.ToArray();
