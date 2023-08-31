@@ -21,13 +21,12 @@
             </MudCardContent>
         </MudCardHeader>
         <MudCardContent>
-            <MudStack Row="true">
+            <MudStack>
                 <MudPaper>
                     <MudChart ChartType="ChartType.Bar" ChartSeries="@_chartValues" XAxisLabels="@_chartLabels" Width="500x" Height="400px"></MudChart>
                 </MudPaper>
                 <MudPaper>
-                    <div>Recent Values:</div>
-                    <MudTable Items=@Dimension._values Dense="true">
+                    <MudTable Items="@Dimension._values" Dense="true">
                         <NoRecordsContent>
                             No records found for this dimension combination.
                         </NoRecordsContent>
