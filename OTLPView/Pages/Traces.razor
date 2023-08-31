@@ -9,14 +9,15 @@
 }
 else
 {
-    <div class="OperationsList">
-        <div class="OperationsListTitle">Operations:</div>
-        <div class="OperationsListItems">
-            @foreach (var operation in TelemetryResults.Operations)
-            {
-                <div class="@IsSelected(operation,"OperationsListBlock")" @onclick="@(_ => SelectOperation(operation))">
-                    <div class="OperationsListTitleBlock">
-                        <h2>@operation.OperationId</h2>
+    <MudStack Row="true" Spacing="3" Class="d-flex">
+        <MudPaper Elevation="1" Height="800" Class="overflow-scroll flex-grow-0">
+            <MudList Clickable="true" SelectedValueChanged="SelectedOperationChanged" >
+                <MudListSubheader>
+                    Operations
+                </MudListSubheader>
+                @foreach (var operation in TelemetryResults.Operations)
+                {
+                    <MudListItem Value="@operation">
                         <div class="OperationsListDetails">
                             <span class="Property">Duration:</span>
                             <span class="Value">@operation.Duration ms</span>,
@@ -28,83 +29,82 @@ else
                         <div>
                             <span>@operation.StartTime.TimeOfDay</span>
                         </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-    <div class="OperationBlock">
-        @if (State.SelectedSpan is not null)
-        {
-            <div class="OperationTitleBlock">
-                <h2><span>Operation:</span><span>@State.SelectedOperation.OperationId</span></h2>
-            </div>
-            @foreach (var s in State.SelectedOperation.RootSpans.Values)
-            {
-                <TraceSpanView Span="@s" />
-            }
-            @foreach (var s in State.SelectedOperation.UnParentedSpans)
-            {
-                <TraceSpanView Span="@s" />
-            }
+                    </MudListItem>
+                }
 
-        }
-        else
-        {
-            <div>Select an operation to view its spans</div>
-        }
-    </div>
-    <div class="DetailsPanel">
-        @if (State.SelectedSpan is not null)
-        {
-            <div class="DetailsTitle">Span Details</div>
-            <div class="SpanTitle">
-                <h2 class="Name">@State.SelectedSpan.Name</h2>
+            </MudList>
+        </MudPaper>
+        <MudPaper Width="800" Class="flex-grow-1">
+            @if (State.SelectedSpan is not null)
+            {
+                <MudText Typo="Typo.h6"><span>Operation:</span><span>@State.SelectedOperation.OperationId</span></MudText>
+         <MudPaper> 
+                @foreach (var s in State.SelectedOperation.RootSpans.Values)
+                {
+                    <TraceSpanView Span="@s" />
+                }
+                @foreach (var s in State.SelectedOperation.UnParentedSpans)
+                {
+                    <TraceSpanView Span="@s" />
+                }
+                </MudPaper>
+            }
+            else
+            {
+                <MudText>Select an operation to view its spans</MudText>
+            }
+       
+        </MudPaper>
+        <MudPaper Width="300" Class="flex-grow-0">
+            @if (State.SelectedSpan is not null)
+            {
+                <MudText Typo="Typo.overline">Span Details</MudText>
+                <MudText Typo="Typo.h6">@State.SelectedSpan.Name</MudText>
                 <table>
                     <tbody>
                         <tr>
-                            <td class="Property">SpanId:</td>
-                            <td class="Value">@State.SelectedSpan.SpanId</td>
+                            <td><MudText Typo="Typo.overline">SpanId:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@State.SelectedSpan.SpanId</MudText></td>
                         </tr>
                         <tr>
-                            <td class="Property">Kind:</td>
-                            <td class="Value">@State.SelectedSpan.Kind</td>
+                            <td><MudText Typo="Typo.overline">Kind:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@State.SelectedSpan.Kind</MudText></td>
                         </tr>
                         @if (State.SelectedSpan.ParentSpanId is not null)
                         {
                             <tr>
-                                <td class="Property">Parent SpanId:</td>
-                                <td class="Value">@State.SelectedSpan.ParentSpanId</td>
+                                <td><MudText Typo="Typo.overline">Parent SpanId:</MudText></td>
+                                <td><MudText Typo="Typo.body2">@State.SelectedSpan.ParentSpanId</MudText></td>
                             </tr>
                         }
                         @if (State.SelectedSpan.NotParented)
                         {
                             <tr>
-                                <td class="Property">Validation Error</td>
-                                <td class="Value">Parent span not found</td>
+                                <td><MudText Typo="Typo.overline">Validation Error</MudText></td>
+                                <td><MudText Typo="Typo.body2">Parent span not found</MudText></td>
                             </tr>
                         }
                         <tr>
-                            <td class="Property">Operation Offset:</td>
-                            <td class="Value">@((State.SelectedSpan.StartTime - State.SelectedSpan.Operation.StartTime).TotalMilliseconds) ms</td>
+                            <td><MudText Typo="Typo.overline">Operation Offset:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@((State.SelectedSpan.StartTime - State.SelectedSpan.Operation.StartTime).TotalMilliseconds) ms</MudText></td>
                         </tr>
                         @if (State.SelectedSpan.ParentSpan is not null)
                         {
                             <tr>
-                                <td class="Property">Parent Offset</td>
+                                <td><MudText Typo="Typo.overline">Parent Offset</MudText></td>
 
-                                <td class="Value">@((State.SelectedSpan.StartTime - State.SelectedSpan.ParentSpan.StartTime).TotalMilliseconds) ms </td>
+                                <td><MudText Typo="Typo.body2">@((State.SelectedSpan.StartTime - State.SelectedSpan.ParentSpan.StartTime).TotalMilliseconds) ms </MudText></td>
                             </tr>
                         }
                         <tr>
-                            <td class="Property">Duration:</td>
-                            <td class="Value">@(State.SelectedSpan.Duration.TotalMilliseconds) ms</td>
+                            <td><MudText Typo="Typo.overline">Duration:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@(State.SelectedSpan.Duration.TotalMilliseconds) ms</MudText></td>
                         </tr>
                         @if (State.SelectedSpan.Status is not null)
                         {
                             <tr>
-                                <td class="Property">Status:</td>
-                                <td class="Value">@State.SelectedSpan.Status</td>
+                                <td><MudText Typo="Typo.overline">Status:</MudText></td>
+                                <td><MudText Typo="Typo.body2">@State.SelectedSpan.Status</MudText></td>
                             </tr>
                         }
                         @foreach (var kv in State.SelectedSpan.Attributes)
@@ -112,23 +112,23 @@ else
                             if (!string.IsNullOrEmpty(kv.Value))
                             {
                                 <tr>
-                                    <td class="Property">@kv.Key:</td>
-                                    <td class="Value">@kv.Value</td>
+                                    <td><MudText Typo="Typo.overline">@kv.Key:</MudText></td>
+                                    <td><MudText Typo="Typo.body2">@kv.Value</MudText></td>
                                 </tr>
                             }
                         }
                         <tr>
-                            <td class="DetailsTitle" colspan="2">Trace Scope</td>
+                            <td colspan="2"><MudText Typo="Typo.subtitle1">Trace Scope</MudText></td>
                         </tr>
                         <tr>
-                            <td class="Property">Name:</td>
-                            <td class="Value">@State.SelectedSpan.TraceScope.ScopeName</td>
+                            <td><MudText Typo="Typo.overline">Name:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@State.SelectedSpan.TraceScope.ScopeName</MudText></td>
                         </tr>
                         @if (!string.IsNullOrEmpty(State.SelectedSpan.TraceScope.Version))
                         {
                             <tr>
-                                <td class="Property">Version:</td>
-                                <td class="Value">@State.SelectedSpan.TraceScope.Version</td>
+                                <td><MudText Typo="Typo.overline">Version:</MudText></td>
+                                <td><MudText Typo="Typo.body2">@State.SelectedSpan.TraceScope.Version</MudText></td>
                             </tr>
                         }
                         @foreach (var kv in State.SelectedSpan.TraceScope.Properties)
@@ -136,33 +136,33 @@ else
                             if (!string.IsNullOrEmpty(kv.Value))
                             {
                                 <tr>
-                                    <td class="Property">@kv.Key:</td>
-                                    <td class="Value">@kv.Value</td>
+                                    <td><MudText Typo="Typo.overline">@kv.Key:</MudText></td>
+                                    <td><MudText Typo="Typo.body2">@kv.Value</MudText></td>
                                 </tr>
                             }
                         }
                         <tr>
-                            <td class="DetailsTitle" colspan="2">Events</td>
+                            <td colspan="2"><MudText Typo="Typo.subtitle1">Events</MudText></td>
                         </tr>
                         @if (State.SelectedSpan.Events.Count > 0)
                         {
                             foreach (var e in State.SelectedSpan.Events)
                             {
                                 <tr>
-                                    <td class="Property">Name:</td>
-                                    <td class="Value">@e.Name</td>
+                                    <td><MudText Typo="Typo.overline">Name:</MudText></td>
+                                    <td><MudText Typo="Typo.body2">@e.Name</MudText></td>
                                 </tr>
                                 <tr>
-                                    <td class="Property">Offset</td>
-                                    <td class="Value">@e.TimeOffset(State.SelectedSpan)</td>
+                                    <td><MudText Typo="Typo.overline">Offset</MudText></td>
+                                    <td><MudText Typo="Typo.body2">@e.TimeOffset(State.SelectedSpan)</MudText></td>
                                 </tr>
                                 foreach (var kv in e.Attributes)
                                 {
                                     if (!string.IsNullOrEmpty(kv.Value))
                                     {
                                         <tr>
-                                            <td class="Property">@kv.Key:</td>
-                                            <td class="Value">@kv.Value</td>
+                                            <td><MudText Typo="Typo.overline">@kv.Key:</MudText></td>
+                                            <td><MudText Typo="Typo.body2">@kv.Value</MudText></td>
                                         </tr>
                                     }
                                 }
@@ -171,15 +171,15 @@ else
                         else
                         {
                             <tr>
-                                <td colspan="2">No events</td>
+                                <td colspan="2"><MudText>No events</MudText></td>
                             </tr>
                         }
                         <tr>
-                            <td class="DetailsTitle" colspan="2">Application</td>
+                            <td colspan="2"><MudText Typo="Typo.subtitle1">Application</MudText></td>
                         </tr>
                         <tr>
-                            <td class="Property">Name:</td>
-                            <td class="Value">@State.SelectedSpan.Source.ApplicationName</td>
+                            <td><MudText Typo="Typo.overline">Name:</MudText></td>
+                            <td><MudText Typo="Typo.body2">@State.SelectedSpan.Source.ApplicationName</MudText></td>
                         </tr>
 
                         @foreach (var kv in State.SelectedSpan.Source.Properties)
@@ -187,18 +187,19 @@ else
                             if (!string.IsNullOrEmpty(kv.Value))
                             {
                                 <tr>
-                                    <td class="Property">@kv.Key:</td>
-                                    <td class="Value">@kv.Value</td>
+                                    <td><MudText Typo="Typo.overline">@kv.Key:</MudText></td>
+                                    <td><MudText Typo="Typo.body2">@kv.Value</MudText></td>
                                 </tr>
                             }
                         }
                     </tbody>
                 </table>
-            </div>
-        }
-        else
-        {
-            <div>Select a span to see details</div>
-        }
-    </div>
+            }
+            else
+            {
+                <div>Select a span to see details</div>
+            }
+        </MudPaper>
+    </MudStack>
+
 }

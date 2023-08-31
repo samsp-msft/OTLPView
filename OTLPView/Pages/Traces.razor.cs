@@ -52,4 +52,10 @@ public sealed partial class Traces
 
     public string IsSelected(TraceOperation o, string cssClass) =>
         cssClass + ((State.SelectedOperation == o) ? " Selected" : "");
+
+    public void SelectedOperationChanged(object item)
+    {
+        State.SelectedOperation = item as TraceOperation;
+        State.SelectedSpan = State.SelectedOperation.RootSpans.Values.First();
+    }
 }
