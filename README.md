@@ -1,5 +1,7 @@
 # OTLPView
 
+[![.NET](https://github.com/samsp-msft/OTLPView/actions/workflows/dotnet.yml/badge.svg)](https://github.com/samsp-msft/OTLPView/actions/workflows/dotnet.yml)
+
 ## An OTLP Viewer written in .NET Blazor
 
 Provides a viewer for telemetry emitted via OTLP. Implements an OTLP/gRPC endpoint that you can point other applications at to collect and analyze the data that is being emitted.
