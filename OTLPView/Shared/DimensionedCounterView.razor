@@ -8,6 +8,7 @@
                 }
                 else
                 {
+                    <MudStack Row="true">
                     @foreach (var kv in Dimension.Dimensions)
                     {
                         <MudText>
@@ -15,6 +16,7 @@
                             <span class="DimensionValue">@kv.Value</span>
                         </MudText>
                     }
+                    </MudStack>
                 }
             </MudCardContent>
         </MudCardHeader>

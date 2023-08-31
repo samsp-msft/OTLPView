@@ -79,7 +79,7 @@ else
                             {
                                 @if (Dimension.IsHistogram)
                                 {
-                                    <!-- <DimensionedHistogramView Dimension="@Dimension" />-->
+                                   <DimensionedHistogramView Counter="@State.SelectedMetric" Dimension="@Dimension"  />
                                 }
                                 else
                                 {
@@ -94,110 +94,4 @@ else
         </MudPaper>
 
     </MudStack>
-
-
-
-
-    @*     <div class="MetricsTree">
-        <div class="ApplicationsList">
-            <div class="ApplicationsListTitle">
-                <h2>Applications</h2>
-            </div>
-            <div class="ApplicationsListContents">
-                @foreach (var app in TelemetryResults.Applications.Values)
-                {
-                    <div class="@IsAppSelected(app,"ApplicationsListItem" )" @onclick="@(_ => SelectApp(app))">
-                        <h3>@app.UniqueApplicationName</h3>
-                        <table class="ServiceDescription">
-                            <tdata>
-                                <tr>
-                                    <td class="Property">Instance Id:</td>
-                                    <td class="Value">@app.InstanceId</td>
-                                </tr>
-                                @foreach (var p in app.Properties)
-                                {
-                                    <tr>
-                                        <td class="Property">@p.Key:</td>
-                                        <td class="Value">@p.Value</td>
-                                    </tr>
-                                }
-                            </tdata>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
-        <div class="MeterList">
-            <div class="MeterListTitle">
-                <h2>Meters</h2>
-            </div>
-            @if (State.SelectedApp is not null)
-            {
-                <div class="MeterListContents">
-                    @foreach (var m in State.SelectedApp?.Meters?.Values ?? Array.Empty<MeterResult>())
-                    {
-                        <div class="MeterListItem">
-                            <h3>@m.MeterName</h3>
-                            <table class="MeterDescription">
-                                <tdata>
-                                    @if (!string.IsNullOrEmpty(m.Version))
-                                    {
-                                        <tr>
-                                            <td class="Property">Version:</td>
-                                            <td class="Value">@m.Version</td>
-
-                                        </tr>
-                                    }
-                                    @foreach (var p in m.Properties)
-                                    {
-                                        <tr>
-                                            <td class="Property">@p.Key:</td>
-                                            <td class="Value">@p.Value</td>
-                                        </tr>
-                                    }
-                                </tdata>
-                            </table>
-
-
-                            <div class="MetricListContents">
-                                @foreach (var cnt in m.Counters.Values)
-                                {
-                                    <div class="@IsMetricSelected(cnt,"MetricListItem" )" @onclick="@(_ => SelectMetric(cnt))">
-                                        <h3 class="CounterName">@cnt.CounterName</h3>
-                                    </div>
-                                }
-                            </div>
-
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="MetricDetails">
-        <div class="MetricDetailsTitle">
-            <h2>Metric Values</h2>
-        </div>
-        @if (State.SelectedMetric is not null)
-        {
-            <div class="CounterBlock">
-                <h4 class="CounterName">@State.SelectedMetric.CounterName</h4>
-                <div class="CounterDetails">
-                    <div>
-                        <span class="Property">Unit: </span>
-                        <span class="Value">@State.SelectedMetric.CounterUnit</span>
-                        <span class="Property">Description:</span>
-                        <span class="Value">@State.SelectedMetric.CounterDescription</span>
-                    </div>
-                </div>
-                <div class="CounterContents">
-                    @foreach (var Dimension in State.SelectedMetric.Dimensions.Values)
-                    {
-                        <DimensionedCounterView Dimension="@Dimension" />
-                    }
-                </div>
-            </div>
-        }
-    </div> *@
 }
