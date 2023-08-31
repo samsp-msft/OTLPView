@@ -1,62 +1,16 @@
-﻿
-.OperationBlock {
-    display: block;
-    border: 1px solid darkgrey;
-    margin: 4px 400px 0px 300px;
+
+/* Used by the operations table for selection */
+.selected {
+    background-color: #1E88E5 !important;
 }
 
-.OperationsList {
-    display: block;
-    position: fixed;
-    left: 260px;
-    top: 80px;
-    width: 300px;
+.selected > td {
+    color: white !important;
 }
 
-.OpertionsListTitle {
-}
-
-.OperationsListItems {
-    border: 1px solid darkgray;
-    padding: 2px;
-}
-
-.OperationsListBlock {
-    padding: 4px;
-    border-radius: 2px;
-}
-
-.OperationsListBlock.Selected {
-    background-color: #4d5788;
-}
-
-    .OperationsListBlock:hover {
-        background-color: #f2f2f2;
+    .selected > td .mud-input {
+        color: white !important;
     }
-
-.OperationsListTitleBlock h2 {
-    font-size: 12pt;
-    margin: 4px 4px 1px 1px;
-}
-
-.DetailsPanel {
-    display: block;
-    position: fixed;
-    right: 0px;
-    top: 80px;
-    width: 400px;
-}
-
-.OperationTitleBlock {
-}
-
-    .OperationTitleBlock h2 {
-        font-size: 14pt;
-    }
-
-        .OperationTitleBlock h2 span {
-            margin: 2px;
-        }
 
 .SpanBlock {
 }
@@ -84,8 +38,6 @@
 .TimelineTitle {
     display: block;
     position: absolute;
-    /* Calculates 50% of the element's width, and moves it by that */
-    /* amount across the X-axis to the left */
     left: 50px;
     top: 1px;
     right: 50px;
@@ -112,28 +64,4 @@
     top: 12px;
 }
 
-.TimelineRightOffset {
-    display: inline-block;
-}
 
-.DetailsTitle {
-    font-size: 14pt;
-    padding: 4px 4px;
-}
-
-.SpanTitle {
-}
-
-
-    .SpanTitle h2 {
-        font-size: 14pt;
-    }
-
-    .SpanTitle .Property {
-        font-size: 12pt;
-    }
-
-    .SpanTitle .Value {
-        font-size: 12pt;
-        font-family: 'Cascadia Mono', 'Lucida Console', 'Consolas', Courier, monospace;
-    }

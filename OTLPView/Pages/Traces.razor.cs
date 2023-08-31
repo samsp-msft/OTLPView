@@ -1,3 +1,7 @@
+using MudBlazor;
+using static MudBlazor.CategoryTypes;
+using OTLPView.DataModel;
+
 namespace OTLPView.Pages;
 
 public sealed partial class Traces
@@ -7,6 +11,8 @@ public sealed partial class Traces
 
     [Inject]
     public required TracesPageState State { get; set; }
+
+    private MudTable<TraceOperation> opsTable;
 
     protected override void OnInitialized()
     {
@@ -44,18 +50,40 @@ public sealed partial class Traces
         }
     }
 
-    public void SelectOperation(TraceOperation o)
+    private void OperationClick(TableRowClickEventArgs<TraceOperation> args)
     {
-        State.SelectedOperation = o;
+        State.SelectedOperation = args.Item;
         State.SelectedSpan = State.SelectedOperation.RootSpans.Values.First();
     }
 
-    public string IsSelected(TraceOperation o, string cssClass) =>
-        cssClass + ((State.SelectedOperation == o) ? " Selected" : "");
-
-    public void SelectedOperationChanged(object item)
+    private int selectedRowNumber = -1;
+    private string SelectedRowClassFunc(TraceOperation o, int rowNumber)
     {
-        State.SelectedOperation = item as TraceOperation;
-        State.SelectedSpan = State.SelectedOperation.RootSpans.Values.First();
+        if (selectedRowNumber == rowNumber)
+        {
+            selectedRowNumber = -1;
+            return string.Empty;
+        }
+        else if (opsTable.SelectedItem != null && opsTable.SelectedItem.Equals(o))
+        {
+            selectedRowNumber = rowNumber;
+            return "selected";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+
+    private string ShortOpName(string name)
+    {
+        if (name.Length > 8)
+        {
+            return $"{name.Substring(0, 1)}…{name.Substring(name.Length-6)}".HtmlEncode();
+        }
+        else
+        {
+            return name;
+        }
     }
 }

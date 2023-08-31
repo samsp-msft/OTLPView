@@ -1,4 +1,5 @@
 @page "/Traces"
+@using OTLPView.DataModel;
 
 <PageTitle>Traces</PageTitle>
 
@@ -10,29 +11,30 @@
 else
 {
     <MudStack Row="true" Spacing="3" Class="d-flex">
-        <MudPaper Elevation="1" Height="800" Class="overflow-scroll flex-grow-0">
-            <MudList Clickable="true" SelectedValueChanged="SelectedOperationChanged" >
-                <MudListSubheader>
-                    Operations
-                </MudListSubheader>
-                @foreach (var operation in TelemetryResults.Operations)
-                {
-                    <MudListItem Value="@operation">
-                        <div class="OperationsListDetails">
-                            <span class="Property">Duration:</span>
-                            <span class="Value">@operation.Duration ms</span>,
-                            <span class="Property">Root Spans:</span>
-                            <span class="Value">@operation.RootSpans.Count</span>,
-                            <span class="Property">All Spans:</span>
-                            <span class="Value">@operation.AllSpans.Count</span>
-                        </div>
-                        <div>
-                            <span>@operation.StartTime.TimeOfDay</span>
-                        </div>
-                    </MudListItem>
-                }
+        <MudPaper Elevation="1" Height="800" Class="flex-grow-0">
 
-            </MudList>
+            <MudTable Items="@TelemetryResults.Operations" Hover="true" Dense="true" @ref="opsTable" RowClassFunc="@SelectedRowClassFunc" OnRowClick="OperationClick" T="TraceOperation">
+                <NoRecordsContent>
+                    Operations will be shown when traces have been seen.
+                </NoRecordsContent>
+                <HeaderContent>
+                    <MudTh>Operation Id</MudTh>
+                    <MudTh>Start Time</MudTh>
+                    <MudTh>Duration (ms)</MudTh>             
+                    <MudTh>Spans</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Operation Id">@(ShortOpName(context.OperationId))</MudTd>
+                    <MudTd DataLabel="Root Spans">@(context.StartTime.ToLocalTime().ToLongTimeString())</MudTd>
+                    <MudTd DataLabel="Duration">@(context.Duration)</MudTd>
+                   
+                    <MudTd DataLabel="Spans">@(context.AllSpans.Count)</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager HideRowsPerPage="true" PageSizeOptions="new int[]{30,}"/>
+                </PagerContent>
+            </MudTable>
+
         </MudPaper>
         <MudPaper Width="800" Class="flex-grow-1">
             @if (State.SelectedSpan is not null)
