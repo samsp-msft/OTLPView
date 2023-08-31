@@ -29,7 +29,7 @@ public sealed partial class DimensionedCounterView
         chartLabels = calcLabels();
     }
 
-    private string[] calcLabels()
+    private string[] CalcLabels()
     {
         var labels = new string[18];
         for (var i = 0; i < 18; i++)
@@ -39,7 +39,7 @@ public sealed partial class DimensionedCounterView
         return labels;
     }
 
-    private double[] calcChartValues(DimensionScope dimension)
+    private double[] CalcChartValues(DimensionScope dimension)
     {
         var values = new double[18];
         foreach (var point in dimension.Values)
@@ -61,7 +61,7 @@ public sealed partial class DimensionedCounterView
         return values;
     }
 
-    private double[] calcFakeValues()
+    private double[] CalcFakeValues()
     {
         var values = new double[18];
         var rnd = new Random();
@@ -72,7 +72,7 @@ public sealed partial class DimensionedCounterView
         return values;
     }
 
-    private int? calcOffset(DateTime time)
+    private int? CalcOffset(DateTime time)
     {
         var now = DateTime.UtcNow;
         var diff = now - time;

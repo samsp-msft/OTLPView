@@ -25,7 +25,7 @@ public sealed partial class TraceSpanView
     private double _rightOffset;
     private double _left_ms;
 
-    private void calculateOffsets()
+    private void CalculateOffsets()
     {
         if (Span.ParentSpan != null)
         {
