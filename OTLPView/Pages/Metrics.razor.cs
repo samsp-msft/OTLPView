@@ -83,6 +83,9 @@ public sealed partial class Metrics
 
     public void SelectedCounterChanged(object item)
     {
-        State.SelectedMetric = item as Counter;
+        if (item is Counter counter)
+        {
+            State.SelectedMetric = counter;
+        }
     }
 }

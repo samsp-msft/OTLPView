@@ -2,6 +2,12 @@ namespace OTLPView.Extensions;
 
 public static class Helpers
 {
+    public static string? GetServiceId(this Resource resource) =>
+        resource.Attributes
+            .FirstOrDefault(attr => attr.Key == OtlpApplication.SERVICE_INSTANCE_ID)
+            ?.Value
+            .ValueString();
+
     public static bool FindStringValue(this RepeatedField<KeyValue> attributes, string key, out string? value)
     {
         value = null;

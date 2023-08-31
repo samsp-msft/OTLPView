@@ -57,7 +57,6 @@ public class OtlpApplication
     public MeterResult GetOrAddMeter(string meterName, Func<string, MeterResult> itemFactory) => _meters.GetOrAdd(meterName, _ => itemFactory.Invoke(meterName));
     #endregion
 
-
     #region Traces
 
     private readonly ConcurrentDictionary<string, TraceScope> _scopes = new();
@@ -65,23 +64,4 @@ public class OtlpApplication
 
     public TraceScope GetOrAddTrace(string scopeName, Func<string, TraceScope> itemFactory) => _scopes.GetOrAdd(scopeName, _ => itemFactory.Invoke(scopeName));
     #endregion
-
-
-
-
-}
-
-public static class CommonHelpers
-{
-    public static string GetServiceId(this Resource resource)
-    {
-        foreach (var attribute in resource.Attributes)
-        {
-            if (attribute.Key == OtlpApplication.SERVICE_INSTANCE_ID)
-            {
-                return attribute.Value.ValueString();
-            }
-        }
-        return null;
-    }
 }

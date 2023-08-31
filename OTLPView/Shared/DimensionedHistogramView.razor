@@ -13,13 +13,13 @@
             @if (mValue is HistogramValue)
             {
                 var hValue = mValue as HistogramValue;
-        <div class="HistogramValue">
-            <span class="HistogramValueProperty">Count:</span>
-            <span class="HistogramValuePropertyValue">@hValue.Count</span>
-            <span class="HistogramValueProperty">Sum:</span>
-            <span class="HistogramValuePropertyValue">@hValue.Sum</span>
-             <span class="HistogramValueProperty">Buckets:</span>
-            @if (hValue.Values is not null)
+                <div class="HistogramValue">
+                    <span class="HistogramValueProperty">Count:</span>
+                    <span class="HistogramValuePropertyValue">@hValue.Count</span>
+                    <span class="HistogramValueProperty">Sum:</span>
+                    <span class="HistogramValuePropertyValue">@hValue.Sum</span>
+                    <span class="HistogramValueProperty">Buckets:</span>
+                    @if (hValue.Values is not null)
                     {
                         foreach (var v in hValue.Values)
                         {
@@ -32,14 +32,11 @@
             {
                 <span class="MetricPointValue">@mValue.ToString()</span>
             }
-
         }
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public DimensionScope Dimension { get; set; }
-
-
+    [Parameter, EditorRequired]
+    public required DimensionScope Dimension { get; set; }
 }

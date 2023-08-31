@@ -6,8 +6,8 @@ public sealed partial class DimensionedCounterView
     private string[] chartLabels;
     private List<ChartSeries> chartValues;
 
-    [Parameter]
-    public DimensionScope Dimension
+    [Parameter, EditorRequired]
+    public required DimensionScope Dimension
     {
         get => _dimension;
         set
@@ -24,8 +24,8 @@ public sealed partial class DimensionedCounterView
         }
     }
 
-    [Parameter]
-    public Counter Counter { get; set; }
+    [Parameter, EditorRequired]
+    public required Counter Counter { get; set; }
 
     protected override void OnInitialized()
     {
@@ -51,12 +51,14 @@ public sealed partial class DimensionedCounterView
             var end = CalcOffset(point.End);
             if (start is not null && end is not null)
             {
-                for (int i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(17); i++)
+                for (var i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(17); i++)
                 {
-                    if (point as MetricValue<long> != null)
-                    { values[i] = Math.Max((point as MetricValue<long>).Value, values[i]); }
-                    else
-                    { values[i] = Math.Max((point as MetricValue<double>).Value, values[i]); }
+                    values[i] = point switch
+                    {
+                        MetricValue<long> @longMetric => Math.Max(@longMetric.Value, values[i]),
+                        MetricValue<double> doubleMetric => Math.Max(doubleMetric.Value, values[i]),
+                        _ => values[i]
+                    };
                 }
             }
         }
