@@ -15,7 +15,11 @@ public sealed partial class DimensionedCounterView
             _dimension = value;
             chartValues = new List<ChartSeries>()
             {
-                new ChartSeries() { Name=Counter?.CounterName ?? "unknown", Data= calcChartValues(_dimension) }
+                new ChartSeries()
+                {
+                    Name = Counter?.CounterName ?? "unknown",
+                    Data = CalcChartValues(_dimension)
+                }
             };
         }
     }
@@ -23,10 +27,9 @@ public sealed partial class DimensionedCounterView
     [Parameter]
     public Counter Counter { get; set; }
 
-
     protected override void OnInitialized()
     {
-        chartLabels = calcLabels();
+        chartLabels = CalcLabels();
     }
 
     private string[] CalcLabels()
@@ -44,8 +47,8 @@ public sealed partial class DimensionedCounterView
         var values = new double[18];
         foreach (var point in dimension.Values)
         {
-            var start = calcOffset(point.Start);
-            var end = calcOffset(point.End);
+            var start = CalcOffset(point.Start);
+            var end = CalcOffset(point.End);
             if (start is not null && end is not null)
             {
                 for (int i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(17); i++)
@@ -64,7 +67,7 @@ public sealed partial class DimensionedCounterView
     private double[] CalcFakeValues()
     {
         var values = new double[18];
-        var rnd = new Random();
+        var rnd = Random.Shared;
         for (var i = 0; i < 18; i++)
         {
             values[i] = rnd.NextDouble() * 100;

@@ -16,7 +16,7 @@ public sealed partial class TraceSpanView
         set
         {
             _span = value;
-            calculateOffsets();
+            CalculateOffsets();
         }
     }
 
