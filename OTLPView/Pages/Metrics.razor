@@ -2,7 +2,7 @@
 
 <PageTitle>Metrics</PageTitle>
 
-@if (State is {  SelectedApp: null })
+@if (State is { SelectedApp: null })
 {
     <SimpleBanner TitleText="No metric data"
                   BodyText="As metrics are measured and published through OpenTelemetry, they will be displayed here." />
@@ -23,7 +23,82 @@ else
         }
     </MudTabs>
 
-@*     <div class="MetricsTree">
+
+    <MudStack Row="true">
+        <MudPaper Elevation="0">
+            <MudList Clickable="true" SelectedValueChanged="SelectedCounterChanged">
+                <MudListSubheader>
+                    Metrics
+                </MudListSubheader>
+                @foreach (var m in State.SelectedApp?.Meters?.Values ?? Array.Empty<MeterResult>())
+                {
+                    <MudListItem Text="@m.MeterName" InitiallyExpanded="true" Value="@m">
+                        <NestedList>
+                            @foreach (var cnt in m.Counters.Values)
+                            {
+                                <MudListItem Text="@cnt.CounterName" Value="@cnt" />
+                            }
+                        </NestedList>
+                    </MudListItem>
+                }
+
+            </MudList>
+        </MudPaper>
+        <MudPaper>
+            <MudStack>
+                <MudCard>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h4">
+                            <span>@State.SelectedMetric.Parent.MeterName</span>
+                            <span> - </span>
+                            <span>@State.SelectedMetric.CounterName</span>
+                            </MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (!string.IsNullOrEmpty(State.SelectedMetric.CounterUnit))
+                        {
+                            <MudText>
+                                <span class="Property">Unit: </span>
+                                <span class="Value">@State.SelectedMetric.CounterUnit</span>
+                            </MudText>
+                        }
+                        <MudText>
+                            <span class="Property">Description:</span>
+                            <span class="Value">@State.SelectedMetric.CounterDescription</span>
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+                @if (State.SelectedMetric != null)
+                {
+                    <MudCard>
+                        <MudCardHeader>
+                            <MudText Typo="Typo.h5">Dimensions:</MudText>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @foreach (var Dimension in State.SelectedMetric?.Dimensions.Values)
+                            {
+                                @if (Dimension.IsHistogram)
+                                {
+                                    <!-- <DimensionedHistogramView Dimension="@Dimension" />-->
+                                }
+                                else
+                                {
+                                    <DimensionedCounterView Dimension="@Dimension" Counter="@State.SelectedMetric" />
+                                }
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                }
+            </MudStack>
+
+        </MudPaper>
+
+    </MudStack>
+
+
+
+
+    @*     <div class="MetricsTree">
         <div class="ApplicationsList">
             <div class="ApplicationsListTitle">
                 <h2>Applications</h2>

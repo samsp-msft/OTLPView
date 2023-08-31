@@ -12,7 +12,7 @@ curl http://localhost:5002/NestedGreeting?nestlevel=5
 curl http://localhost:5003/NestedGreeting?nestlevel=5
 curl http://localhost:5004/NestedGreeting?nestlevel=5
 
-timeout /t 1
+
 
 curl http://localhost:5000/NestedGreeting?nestlevel=5
 curl http://localhost:5001/NestedGreeting?nestlevel=5
@@ -20,7 +20,7 @@ curl http://localhost:5002/NestedGreeting?nestlevel=5
 curl http://localhost:5003/NestedGreeting?nestlevel=5
 curl http://localhost:5004/NestedGreeting?nestlevel=5 
 
-timeout /t 1
+
 
 curl http://localhost:5000/NestedGreeting?nestlevel=5
 curl http://localhost:5001/NestedGreeting?nestlevel=5
@@ -29,7 +29,7 @@ curl http://localhost:5003/NestedGreeting?nestlevel=5
 curl http://localhost:5004/NestedGreeting?nestlevel=5
 curl http://localhost:5000/NestedGreeting?nestlevel=5
 
-timeout /t 1
+
 
 curl http://localhost:5001/NestedGreeting?nestlevel=5
 curl http://localhost:5002/NestedGreeting?nestlevel=5

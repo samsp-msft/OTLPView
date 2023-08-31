@@ -79,4 +79,10 @@ public sealed partial class Metrics
 
     public string IsMetricSelected(Counter o, string cssClass) =>
         cssClass + ((State.SelectedMetric == o) ? " Selected" : "");
+
+
+    public void SelectedCounterChanged(object item)
+    {
+        State.SelectedMetric = item as Counter;
+    }
 }
