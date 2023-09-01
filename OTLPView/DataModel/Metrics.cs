@@ -106,9 +106,9 @@ public class DimensionScope
     public int Key { get; init; }
 
     private Dictionary<string, string> _dimensions { get; init; }
-    //public readonly ConcurrentCappedCache<MetricValueBase> _values = new(256);
+    public readonly ConcurrentCappedCache<MetricValueBase> _values = new(256);
     //public readonly ConcurrentBag<MetricValueBase> _values = new();
-    public readonly ConcurrentStack<MetricValueBase> _values = new();
+    //public readonly ConcurrentStack<MetricValueBase> _values = new();
 
 
     // Used to aid in merging values that are the same in a concurrent environment
@@ -154,7 +154,7 @@ public class DimensionScope
                         start = lastLongValue.End;
                     }
                     _lastValue = new MetricValue<long>(d.AsInt, start, end);
-                    _values.Push(_lastValue);
+                    _values.Append(_lastValue);
                     //_values.Add(_lastValue);
                 }
             }
@@ -177,8 +177,8 @@ public class DimensionScope
                         start = lastDoubleValue.End;
                     }
                     _lastValue = new MetricValue<double>(d.AsDouble, start, end);
-                    //_values.Add(_lastValue);
-                    _values.Push(_lastValue);
+                    //_values.(_lastValue);
+                    _values.Append(_lastValue);
                 }
             }
         }
@@ -203,7 +203,7 @@ public class DimensionScope
                 }
                 _lastValue = new HistogramValue(h.BucketCounts, h.Sum, h.Count, start, end, h.ExplicitBounds.ToArray());
                 //_values.Add(_lastValue);
-                _values.Push(_lastValue);
+                _values.Append(_lastValue);
             }
         }
     }

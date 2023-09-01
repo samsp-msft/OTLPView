@@ -27,7 +27,7 @@
                 </MudPaper>
                 <MudPaper>
                     <div>Recent Values:</div>
-                    <MudTable Items=@Dimension._values Dense="true">
+                    <MudTable Items="@(Dimension._values)" Dense="true" T="MetricValueBase">
                         <NoRecordsContent>
                             No records found for this dimension combination.
                         </NoRecordsContent>

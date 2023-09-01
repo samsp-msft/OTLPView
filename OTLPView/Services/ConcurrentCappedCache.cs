@@ -1,6 +1,9 @@
-namespace OTLPView.Services;
+using System;
+using System.Reflection.Metadata.Ecma335;
 
-public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
+namespace OTLPView.DataModel;
+
+public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>, IReadOnlyList<T>
 {
     private const int DEFAULT_MAX_COUNT = 1024;
 
@@ -12,13 +15,14 @@ public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
 
     public ConcurrentCappedCache(int maxCount)
     {
+        if (maxCount < 8) { throw new ArgumentOutOfRangeException(nameof(maxCount), "Must be at least 8"); }
         _maxCount = maxCount;
         _cache = new T[_maxCount];
     }
 
     public ConcurrentCappedCache() : this(DEFAULT_MAX_COUNT) { }
 
-    public void Add(T item)
+    public void Append(T item)
     {
         int index;
         lock (this)
@@ -40,7 +44,7 @@ public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
             int i;
             lock (this)
             {
-                i = (_wrapIndex + index) % _count;
+                i = (_wrapIndex + index) % _maxCount;
             }
             return _cache[i];
         }
@@ -49,7 +53,7 @@ public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
             int i;
             lock (this)
             {
-                i = (_wrapIndex + index) % _count;
+                i = (_wrapIndex + index) % _maxCount;
             }
             _cache[i] = value;
         }
@@ -59,10 +63,10 @@ public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
     {
         get
         {
-            lock (this)
-            {
-                return _count;
-            }
+            //lock (this)
+            //{
+            return _count;
+            //}
         }
     }
 
@@ -82,98 +86,159 @@ public sealed class ConcurrentCappedCache<T> : IDisposable, IEnumerable<T>
 
     public bool Contains(T item)
     {
+        int count;
         lock (this)
         {
-            for (var i = 0; i < _count; i++)
+            count = _count;
+        }
+
+        for (var i = 0; i < count; i++)
+        {
+            if (this[i] is { } obj && obj.Equals(item))
             {
-                if (this[i] is { } obj && obj.Equals(item))
-                {
-                    return true;
-                }
+                return true;
             }
         }
         return false;
     }
 
-    public int IndexOf(T item)
-    {
-        lock (this)
-        {
-            for (var i = _wrapIndex; i < _count + _wrapIndex; i++)
-            {
-                if (this[i % _maxCount] is { } obj && obj.Equals(item))
-                {
-                    return i % _maxCount;
-                }
-            }
-            return -1;
-        }
-    }
+    //public int IndexOf(T item)
+    //{
+    //    int wrapIndex, count, maxCount;
 
-    public T First() => this[0];
+    //    lock (this)
+    //    {
+    //        wrapIndex = _wrapIndex;
+    //        count = _count;
+    //        maxCount = _maxCount;
+    //    }
+    //        for (var i = wrapIndex; i < count + wrapIndex; i++)
+    //        {
+    //            if (this[i % maxCount] is { } obj && obj.Equals(item))
+    //            {
+    //                return i % maxCount;
+    //            }
+    //        }
+    //        return -1;
+    //}
 
-    public T Last()
+    public T Oldest() => this[0];
+
+    public T Newest()
     {
         int i;
+        if (Count is 0) { return default!; }
         lock (this)
         {
-            if (Count is 0) { return default!; }
             i = (_wrapIndex + _count - 1) % _maxCount;
         }
         return _cache[i];
     }
 
-    public T[] First(int count)
+    public T[] Oldest(int count)
     {
         var result = new T[count];
+        int wrapIndex, totalCount, maxCount;
+
         lock (this)
         {
-            count = Math.Min(count, _count);
-
-            for (var i = 0; i < count; i++) { result[i] = _cache[(_wrapIndex + i) % _maxCount]; }
+            wrapIndex = _wrapIndex;
+            totalCount = _count;
+            maxCount = _maxCount;
         }
+
+        count = Math.Min(count, totalCount);
+        for (var i = 0; i < count; i++) { result[i] = _cache[(wrapIndex + i) % maxCount]; }
+
         return result;
     }
-    public T[] Last(int count)
+    public T[] Newest(int count)
     {
         var result = new T[count];
+        int wrapIndex, totalCount, maxCount;
+
         lock (this)
         {
-            count = Math.Min(count, _count);
-
-            for (var i = 0; i < count; i++) { result[i] = _cache[(_wrapIndex + _count - count + i) % _maxCount]; }
+            wrapIndex = _wrapIndex;
+            totalCount = _count;
+            maxCount = _maxCount;
         }
+
+        count = Math.Min(count, totalCount);
+
+        for (var i = 0; i < count; i++) { result[count - i - 1] = _cache[(wrapIndex + totalCount - count + i) % maxCount]; }
+
         return result;
     }
 
-    public IEnumerator<T> GetEnumerator() => new Enumerator(this);
-
-    IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
-
-    private sealed class Enumerator : IEnumerator<T>
+    public T[] ToArray()
     {
-        private ConcurrentCappedCache<T> _cache;
+        lock (this)
+        {
+            var result = new T[_count];
+            Array.Copy(_cache, _wrapIndex, result, 0, _count - _wrapIndex);
+            Array.Copy(_cache, 0, result, _count - _wrapIndex, _wrapIndex);
+            return result;
+        }
+    }
+
+    public List<T> ToList()
+    {
+        lock (this)
+        {
+            var result = new List<T>(_count);
+            result.AddRange(new Span<T>(_cache, _wrapIndex, _count - _wrapIndex));
+            result.AddRange(new Span<T>(_cache, 0, _wrapIndex));
+            return result;
+        }
+    }
+
+    public T[] ToReverseArray()
+    {
+        lock (this)
+        {
+            var result = new T[_count];
+            for (var i = 0; i < _count; i++)
+            {
+                result[_count - i - 1] = _cache[(_wrapIndex + i) % _maxCount];
+            }
+            return result;
+        }
+    }
+
+    public IEnumerator<T> GetEnumerator() => new Enumerator<T>(this);
+    public IEnumerable<T> GetReverseEnumerator() => ToReverseArray();
+
+    IEnumerator IEnumerable.GetEnumerator() => ToArray().GetEnumerator();
+
+    private sealed class Enumerator<T> : IEnumerator<T>, IEnumerator
+    {
+        private T[] _data;
         private int _index = -1;
 
         internal Enumerator(ConcurrentCappedCache<T> cache)
         {
-            _cache = cache;
+            _data = cache.ToArray();
         }
 
-        public T Current => _cache[_index];
+        internal Enumerator(T[] cache)
+        {
+            _data = cache;
+        }
+
+        public T Current => (_index < 0 || _index >= _data.Length) ? default! : _data[_index];
 
         object IEnumerator.Current => Current!;
 
         public void Dispose()
         {
-            _cache?.Dispose();
-            _cache = null!;
+            _data = null;
         }
 
         public bool MoveNext()
         {
             _index++;
-            return _index < (_cache?.Count ?? 0);
+            return _index < (_data?.Length ?? 0);
         }
 
         public void Reset() => _index = -1;
