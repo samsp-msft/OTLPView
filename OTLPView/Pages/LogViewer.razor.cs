@@ -1,9 +1,15 @@
+using Microsoft.AspNetCore.Hosting.Server;
+using MudBlazor.Charts;
+using OTLPView.DataModel;
+using OTLPView.Shared;
+
 namespace OTLPView.Pages;
 
 public sealed partial class LogViewer
 {
     private List<OtlpLogEntry>? _logEntries;
-    private string _filter = "";
+    private readonly List<LogFilter> _logFilters = new();
+    private string _textFilter = "";
 
     private bool HasLogData => TelemetryResults is { Applications.Count: > 0 };
 
@@ -27,28 +33,28 @@ public sealed partial class LogViewer
 
     public async Task OnFilterByTraceId(string traceId)
     {
-        _filter = traceId;
+        _textFilter = traceId;
         await UpdateQuery();
     }
 
-    private bool OnApplyFilter(OtlpLogEntry entry)
+    private bool OnApplyTextFilter(OtlpLogEntry entry)
     {
-        if (string.IsNullOrWhiteSpace(_filter))
+        if (string.IsNullOrWhiteSpace(_textFilter))
         {
             return true;
         }
 
-        if (entry.TraceId == _filter)
+        if (entry.TraceId == _textFilter)
         {
             return true;
         }
 
-        if (entry.Application.ApplicationName.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+        if (entry.Application.ApplicationName.Contains(_textFilter, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        if (entry.Message.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+        if (entry.Message.Contains(_textFilter, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
@@ -64,10 +70,11 @@ public sealed partial class LogViewer
             return;
         }
 
-        _logEntries = string.IsNullOrWhiteSpace(_filter)
-            ? TelemetryResults.Logs.ToList()
-            : TelemetryResults.Logs.Where(l => l.TraceId == _filter).ToList();
+        var results = TelemetryResults.Logs.AsQueryable<OtlpLogEntry>();
+        foreach (var filter in _logFilters) { results = filter.Apply(results); }
+        results = (!string.IsNullOrWhiteSpace(_textFilter)) ? results.Where(l => l.TraceId == _textFilter) : results;
 
+        _logEntries = results.ToList();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -77,7 +84,7 @@ public sealed partial class LogViewer
             entry.Application.ApplicationName,
             new DialogParameters()
             {
-                [nameof(entry.Properties)] = entry.Properties
+                [nameof(entry.Properties)] = entry.AllProperties()
             },
             new DialogOptions()
             {
@@ -87,4 +94,52 @@ public sealed partial class LogViewer
                 Position = DialogPosition.Center
             });
     }
+
+    private void AddFilter(string field, FilterCondition condition, string value)
+    {
+        _logFilters.Add(new LogFilter() { Field = field, Condition = condition, Value = value });
+        UpdateQuery();
+    }
+
+    private void RemoveFilter(LogFilter filter)
+    {
+        _logFilters.Remove(filter);
+        UpdateQuery();
+    }
+
+    private async Task OpenFilter(LogFilter entry)
+    {
+        var dialog = await DialogService.ShowAsync<FilterDialog>(
+            "Filter",
+            new DialogParameters()
+            {
+                [nameof(FilterDialog.Filter)] = entry
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                Position = DialogPosition.Center,
+                NoHeader = true, 
+               
+            });
+        var result = await dialog.Result;
+        if (result.DataType == typeof(string))
+        {
+            _logFilters.Remove(entry);
+        }
+        else if (result.DataType == typeof(LogFilter) && entry is not null)
+        {
+            var index = _logFilters.IndexOf(entry);
+            _logFilters[index] = (LogFilter)result.Data;
+        }
+        else if (result.DataType == typeof(LogFilter))
+        {
+            _logFilters.Add((LogFilter)result.Data);
+        }
+        UpdateQuery();
+    }
 }
+
+
