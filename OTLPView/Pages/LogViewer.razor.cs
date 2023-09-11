@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Hosting.Server;
-using MudBlazor.Charts;
 using OTLPView.DataModel;
-using OTLPView.Shared;
+using Fluent = Microsoft.Fast.Components.FluentUI;
 
 namespace OTLPView.Pages;
 
 public sealed partial class LogViewer
 {
-    private List<OtlpLogEntry>? _logEntries;
+    private IQueryable<OtlpLogEntry> _logEntries { get; set; }
     private readonly List<LogFilter> _logFilters = new();
     private string _textFilter = "";
 
@@ -20,7 +19,12 @@ public sealed partial class LogViewer
     public required LogsPageState State { get; set; }
 
     [Inject]
-    public required IDialogService DialogService { get; set; }
+    public Fluent.IDialogService DialogService { get; set; }
+
+    private Fluent.PaginationState pagination = new Fluent.PaginationState { ItemsPerPage = 30, };
+
+    //[Inject]
+    //public required IDialogService DialogService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,35 +68,34 @@ public sealed partial class LogViewer
 
     private async Task UpdateQuery()
     {
-        if (TelemetryResults is { Logs.Count: 0 })
-        {
-            _logEntries = null;
-            return;
-        }
+        //if (TelemetryResults is { Logs.Count: 0 })
+        //{
+        //    _logEntries = null;
+        //    return;
+        //}
 
         var results = TelemetryResults.Logs.AsQueryable<OtlpLogEntry>();
         foreach (var filter in _logFilters) { results = filter.Apply(results); }
-        results = (!string.IsNullOrWhiteSpace(_textFilter)) ? results.Where(l => l.TraceId == _textFilter) : results;
 
-        _logEntries = results.ToList();
+        _logEntries = results;
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnShowProperties(OtlpLogEntry entry)
     {
-        await DialogService.ShowAsync<TableDialog>(
-            entry.Application.ApplicationName,
-            new DialogParameters()
-            {
-                [nameof(entry.Properties)] = entry.AllProperties()
-            },
-            new DialogOptions()
-            {
-                FullWidth = true,
-                CloseButton = true,
-                CloseOnEscapeKey = true,
-                Position = DialogPosition.Center
-            });
+        //await DialogService.ShowAsync<TableDialog>(
+        //    entry.Application.ApplicationName,
+        //    new DialogParameters()
+        //    {
+        //        [nameof(entry.Properties)] = entry.AllProperties()
+        //    },
+        //    new DialogOptions()
+        //    {
+        //        FullWidth = true,
+        //        CloseButton = true,
+        //        CloseOnEscapeKey = true,
+        //        Position = DialogPosition.Center
+        //    });
     }
 
     private void AddFilter(string field, FilterCondition condition, string value)
@@ -107,39 +110,50 @@ public sealed partial class LogViewer
         UpdateQuery();
     }
 
-    private async Task OpenFilter(LogFilter entry)
+    private void OpenFilter(LogFilter entry)
     {
-        var dialog = await DialogService.ShowAsync<FilterDialog>(
-            "Filter",
-            new DialogParameters()
+        
+        Fluent.DialogParameters<LogFilter> parameters = new()
+        {
+            OnDialogResult = DialogService.CreateDialogCallback(this, HandleDialog),
+            ShowTitle = false,
+            ShowDismiss = false,
+            
+            Width = "600px",
+            Height = "100px",
+            Content = entry,
+            TrapFocus = true,
+            Modal = true,
+            PrimaryAction = null,
+            SecondaryAction = null,
+        };
+        DialogService.ShowDialog<FilterDialog, LogFilter>(parameters);
+    }
+
+    private async Task HandleDialog(Fluent.DialogResult result)
+    {
+        if (result.Data is not null)
+        {
+            var fdr = result.Data as FilterDialogResult;
+            if (fdr.Delete)
             {
-                [nameof(FilterDialog.Filter)] = entry
-            },
-            new DialogOptions()
-            {
-                FullWidth = true,
-                CloseButton = true,
-                CloseOnEscapeKey = true,
-                Position = DialogPosition.Center,
-                NoHeader = true, 
-               
-            });
-        var result = await dialog.Result;
-        if (result.DataType == typeof(string))
-        {
-            _logFilters.Remove(entry);
-        }
-        else if (result.DataType == typeof(LogFilter) && entry is not null)
-        {
-            var index = _logFilters.IndexOf(entry);
-            _logFilters[index] = (LogFilter)result.Data;
-        }
-        else if (result.DataType == typeof(LogFilter))
-        {
-            _logFilters.Add((LogFilter)result.Data);
+                _logFilters.Remove(fdr.Filter as LogFilter);
+            }
+            else if (fdr.Add)
+            {                 _logFilters.Add(fdr.Filter as LogFilter);
+                       }
         }
         UpdateQuery();
+
     }
+}
+
+
+    public class FilterDialogResult
+{
+    public LogFilter Filter { get; set; }
+    public bool Delete { get; set; }
+    public bool Add { get; set; }
 }
 
 

@@ -4,8 +4,8 @@ namespace OTLPView.DataModel;
 
 public class LogFilter
 {
-    public string Field { get; init; }
-    public FilterCondition Condition { get; init; }
+    public string Field { get; set; }
+    public FilterCondition Condition { get; set; }
     public string Value { get; set; }
      public string FilterText => $"{Field} {ConditionToString(Condition)} {Value}";
 

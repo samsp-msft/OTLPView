@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@using MudBlazor
+
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
@@ -24,6 +26,7 @@
         @Body
     </MudMainContent>
 </MudLayout>
+<Microsoft.Fast.Components.FluentUI.FluentDialogProvider />
 @code {
     bool _drawerOpen = true;
     private bool _isDarkMode;

@@ -1,17 +1,42 @@
 @page "/"
+@using Microsoft.Fast.Components.FluentUI
 
 <PageTitle>Logs</PageTitle>
 
-@if (_logEntries is null or { Count: 0 })
+@if (!HasLogData)
 {
     <SimpleBanner TitleText="No logs found"
                   BodyText="As logs are written, they will be displayed here." />
 }
 else
 {
-    <MudTable Items="@_logEntries" Dense="true" Hover="true" Virtualize="true"
-              Filter="new Func<OtlpLogEntry, bool>(OnApplyTextFilter)">
-        <ToolBarContent>
+         <FluentStack>
+                @if (_logFilters.Count == 0)
+                {
+                    <span>No Filters</span>
+                }
+                else
+                {
+                    foreach (var filter in _logFilters)
+                    {
+                        <FluentButton Appearance="Appearance.Outline" OnClick="() => OpenFilter(filter)">@filter.FilterText</FluentButton>
+                    }
+                }
+        <FluentButton Appearance="Appearance.Stealth"  aria-label="Add Filter" OnClick="()=>OpenFilter(null)"><FluentIcon Value="@(new Icons.Regular.Size16.Filter())" /></FluentButton>
+    </FluentStack>
+    <FluentDataGrid Items="@(_logEntries)" ResizableColumns=true Pagination="@pagination">
+            <PropertyColumn Title="Application" Property="@(context =>context.Application.ShortApplicationName.HtmlEncode())"  />
+            <PropertyColumn Title="Severity" Property="@(context =>context.Severity)" />
+            <PropertyColumn Title="Timestamp" Property="@(context =>context.TimeStamp.ToLocalTime().ToLongTimeString())" />
+            <PropertyColumn Title="Format" Property="@(context =>context.OriginalFormat)" />
+            <PropertyColumn Title="Span"Property="@(context =>context.SpanId)" />
+            <PropertyColumn Title="Trace Id" Property="@(context =>context.TraceId)" />
+             
+    </FluentDataGrid>
+    <FluentPaginator State="@pagination" />
+}
+
+@* <ToolBarContent>
             <MudText Typo="Typo.h6">Log Entries</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_textFilter" Clearable="true" Placeholder="Search"
@@ -40,41 +65,31 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.SpanId)">Span</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<OtlpLogEntry, object>(x => x.TraceId)">Trace Id</MudTableSortLabel></MudTh>
             <MudTh>Properties</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Name">@context.Application.ShortApplicationName.HtmlEncode()</MudTd>
-            <MudTd DataLabel="Severity">@context.Severity</MudTd>
-            <MudTd DataLabel="Timestamp">@context.TimeStamp.ToLocalTime()</MudTd>
-            <MudTd DataLabel="Format">@context.OriginalFormat</MudTd>
-            <MudTd DataLabel="Span">@context.SpanId</MudTd>
-            <MudTd DataLabel="Trace Id">
-                <MudMenu ActivationEvent="@MouseEvent.RightClick">
-                    <ActivatorContent>
-                        <MudText>@context.TraceId</MudText>
-                    </ActivatorContent>
-                    <ChildContent>
-                        <MudMenuItem OnClick='(()=>AddFilter("TraceId",FilterCondition.Equals,context.TraceId ))'>Add Filter "TraceId == @context.TraceId"</MudMenuItem>
-                    </ChildContent>
-                </MudMenu>
-            </MudTd>
-            <MudTd DataLabel="Properties">
-                @if (HasLogData)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Preview"
-                                   Color="Color.Primary" Size="Size.Large"
-                                   OnClick="(async () => await OnShowProperties(context))">
-                    </MudIconButton>
-                }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.DoNotDisturb"
-                             Color="Color.Error" Size="Size.Large">
-                    </MudIcon>
-                }
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
-}
+    </HeaderContent>*@
+
+            @*
+                    <MudMenu ActivationEvent="@MouseEvent.RightClick">
+        <ActivatorContent>
+            <MudText>@context.TraceId</MudText>
+        </ActivatorContent>
+        <ChildContent>
+            <MudMenuItem OnClick='(()=>AddFilter("TraceId",FilterCondition.Equals,context.TraceId ))'>Add Filter "TraceId == @context.TraceId"</MudMenuItem>
+        </ChildContent>
+    </MudMenu>
+</MudTd>
+<MudTd DataLabel="Properties">
+    @if (HasLogData)
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.Preview"
+                       Color="MudBlazor.Color.Primary" Size="Size.Large"
+                       OnClick="(async () => await OnShowProperties(context))">
+        </MudIconButton>
+    }
+    else
+    {
+        <MudIcon Icon="@Icons.Material.Filled.DoNotDisturb"
+                 Color="Color.Error" Size="Size.Large">
+        </MudIcon>
+    }
+</MudTd>
+            *@

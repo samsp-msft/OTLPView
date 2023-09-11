@@ -1,4 +1,4 @@
-namespace OTLPView.Shared;
+namespace OTLPView.Components;
 
 public sealed partial class DimensionedCounterView
 {

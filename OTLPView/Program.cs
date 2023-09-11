@@ -1,3 +1,5 @@
+using Microsoft.Fast.Components.FluentUI;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +9,7 @@ builder.Services.AddSingleton<TelemetryResults>();
 builder.Services.AddSingleton<TracesPageState>();
 builder.Services.AddSingleton<MetricsPageState>();
 builder.Services.AddSingleton<LogsPageState>();
+builder.Services.AddFluentUIComponents();
 
 builder.Services.AddGrpc();
 builder.Services.AddMudServices();

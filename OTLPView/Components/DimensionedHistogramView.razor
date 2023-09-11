@@ -1,3 +1,5 @@
+@using MudBlazor
+
 <MudPaper>
     <MudCard>
         <MudCardHeader>
@@ -9,46 +11,55 @@
                 else
                 {
                     <MudStack Row="true">
-                    @foreach (var kv in Dimension.Dimensions)
-                    {
-                        <MudText>
-                            <span class="DimensionKey">@kv.Key: </span>
-                            <span class="DimensionValue">@kv.Value</span>
-                        </MudText>
-                    }
+                        @foreach (var kv in Dimension.Dimensions)
+                        {
+                            <MudText>
+                                <span class="DimensionKey">@kv.Key: </span>
+                                <span class="DimensionValue">@kv.Value</span>
+                            </MudText>
+                        }
                     </MudStack>
                 }
             </MudCardContent>
         </MudCardHeader>
         <MudCardContent>
-            <MudStack Row="true">
+            <MudStack>
                 <MudPaper>
-                    <MudChart ChartType="ChartType.Line" ChartSeries="@chartValues" XAxisLabels="@chartLabels" Width="500x" Height="400px"></MudChart>
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@_chartValues" XAxisLabels="@_chartLabels" Width="500x" Height="400px"></MudChart>
                 </MudPaper>
                 <MudPaper>
-                    <div>Recent Values:</div>
-                    <MudTable Items="@(Dimension._values)" Dense="true" T="MetricValueBase">
+                    <MudTable Items="@Dimension._values" Dense="true">
                         <NoRecordsContent>
                             No records found for this dimension combination.
                         </NoRecordsContent>
                         <HeaderContent>
-                            <MudTh>Value</MudTh>
+                            @foreach (var label in _chartLabels)
+                            {
+                                <MudTh>@label</MudTh>
+                            }
+                            <MudTh>Sum</MudTh>
+                            <MudTh>Count</MudTh>
                             <MudTh>Start Timestamp</MudTh>
                             <MudTh>Last Timestamp</MudTh>
-                            <MudTh>Times Seen</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd DataLabel="Value">@context.ToString()</MudTd>
+                            @foreach (var value in (context as HistogramValue).Values)
+                            {
+                            <MudTd>@value.ToString()</MudTd>
+                            }
+                            <MudTd DataLabel="Sum">@((context as HistogramValue).Sum.ToString("G"))</MudTd>
+                            <MudTd DataLabel="Count">@((context as HistogramValue).Count)</MudTd>
                             <MudTd DataLabel="Start Timestamp">@context.Start.ToLocalTime().ToLongTimeString()</MudTd>
                             <MudTd DataLabel="Last Timestamp">@context.End.ToLocalTime().ToLongTimeString()</MudTd>
-                            <MudTd DataLabel="Times Seen">@context.Count</MudTd>
                         </RowTemplate>
                         <PagerContent>
                             <MudTablePager HideRowsPerPage="true" />
                         </PagerContent>
                     </MudTable>
                 </MudPaper>
+
             </MudStack>
         </MudCardContent>
     </MudCard>
 </MudPaper>
+

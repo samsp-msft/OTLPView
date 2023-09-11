@@ -1,108 +1,17 @@
-<MudDialog>
-    <DialogContent>
-        <MudStack Row="true">
-            <MudSelect @bind-Value:get="Parameter" @bind-Value:set="(p) => {Parameter=p; }" Dense="true" T="string" Label="Column" Variant="Variant.Text">
-                @foreach (var p in Parameters)
-                {
-                    <MudSelectItem Value="@p">@p</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect @bind-Value:get="Condition" @bind-Value:set="(c) => {Condition=c; }" Dense="true" T="FilterCondition" Label="Condition" Variant="Variant.Text">
-                @foreach (var c in Conditions)
-                {
-                    <MudSelectItem Value="@c.Key">@c.Value</MudSelectItem>
-                }
-            </MudSelect>
-            <MudTextField @bind-Value:get="Value" @bind-Value:set="(v) => {Value=v; }" Label="Value" Variant="Variant.Text"></MudTextField>
-        </MudStack>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Apply">Apply Filter</MudButton>
-        @if (Filter is { })
-        {
-            <MudIconButton OnClick="Delete" Icon="@Icons.Material.Filled.Delete" aria-label="delete" />
-        }
-    </DialogActions>
-</MudDialog>
+@using Microsoft.Fast.Components.FluentUI;
 
+<FluentStack>
+    <FluentCombobox Items=@Parameters @bind-Value="@Parameter" Width="100px" />
 
-@code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    <FluentSelect TOption="FilterCondition" Items="@Conditions.Keys" @bind-SelectedOption="@Condition" OptionText="@(i => Conditions[i])" Width="100px" />
 
-    [Parameter]
-    public LogFilter Filter
-    {
-        get; set;
-    }
+    <FluentTextField @bind-Value="Value" Placeholder="Value" />
+</FluentStack>
 
-    private string Parameter { get; set; }
-    private FilterCondition Condition { get; set; }
-    private string Value { get; set; }
-
-    protected override void OnInitialized()
-    {
-        if (Filter != null)
-        {
-            Parameter = Filter.Field;
-            Condition = Filter.Condition;
-            Value = Filter.Value;
-        }
-        else
-        {
-            Parameter = "Message";
-            Condition = FilterCondition.Contains;
-            Value = "";
-        }
-
-    }
-
-
-    [Inject]
-    public required TelemetryResults TelemetryResults { get; set; }
-
-    public List<string> Parameters
-    {
-        get
-        {
-            var result = new string[] { "Message", "Application", "TraceId", "SpanId", "ParentId", "OriginalFormat" }.ToList();
-            result.AddRange(TelemetryResults.LogPropertyKeys.Values);
-            return result;
-        }
-    }
-
-    public Dictionary<FilterCondition, string> Conditions
-    {
-        get
-        {
-            var result = new Dictionary<FilterCondition, string>();
-            foreach (var c in Enum.GetValues<FilterCondition>())
-            {
-                result.Add(c, LogFilter.ConditionToString(c));
-            }
-            return result;
-        }
-    }
-
-    void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-
-    void Delete()
-    {
-        MudDialog.Close(DialogResult.Ok("Delete", typeof(string)));
-    }
-
-    void Apply()
-    {
-        var filter = new LogFilter()
-            {
-                Field = Parameter,
-                Condition = Condition,
-                Value = Value
-            };
-        MudDialog.Close(DialogResult.Ok(filter, typeof(LogFilter)));
-    }
+<FluentButton OnClick="Cancel">Cancel</FluentButton>
+<FluentButton Color="Color.Primary" OnClick="Apply">Apply Filter</FluentButton>
+@if (Content is { })
+{
+    <FluentButton Appearance="Appearance.Stealth" aria-label="Remove Filter" OnClick="Delete"><FluentIcon Value="@(new Icons.Regular.Size16.Delete())" /></FluentButton>
 }
 
