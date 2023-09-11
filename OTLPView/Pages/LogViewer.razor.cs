@@ -116,18 +116,13 @@ public sealed partial class LogViewer
         Fluent.DialogParameters<LogFilter> parameters = new()
         {
             OnDialogResult = DialogService.CreateDialogCallback(this, HandleDialog),
-            ShowTitle = false,
-            ShowDismiss = false,
-            
-            Width = "600px",
-            Height = "100px",
+            Title = "Filter",
+            Alignment = Fluent.HorizontalAlignment.Right,
             Content = entry,
-            TrapFocus = true,
-            Modal = true,
             PrimaryAction = null,
             SecondaryAction = null,
         };
-        DialogService.ShowDialog<FilterDialog, LogFilter>(parameters);
+        DialogService.ShowPanel<FilterDialog, LogFilter>(parameters);
     }
 
     private async Task HandleDialog(Fluent.DialogResult result)
