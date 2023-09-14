@@ -96,6 +96,21 @@ public sealed partial class LogViewer
         //        CloseOnEscapeKey = true,
         //        Position = DialogPosition.Center
         //    });
+
+        Fluent.DialogParameters<Dictionary<string,string>> parameters = new()
+        {
+            Title = "Log Entry Details",
+            Alignment = Fluent.HorizontalAlignment.Right,
+
+            //Width = "600px",
+            //Height = "100px",
+            Content = entry.AllProperties(),
+            //TrapFocus = true,
+            //Modal = true,
+            PrimaryAction = null,
+            SecondaryAction = null,
+        };
+        DialogService.ShowPanel<LogDetailsDialog, Dictionary<string,string>>(parameters);
     }
 
     private void AddFilter(string field, FilterCondition condition, string value)
@@ -112,25 +127,25 @@ public sealed partial class LogViewer
 
     private void OpenFilter(LogFilter entry)
     {
-        
+        var title = (entry is { }) ? "Edit Filter" : "Add Filter";
         Fluent.DialogParameters<LogFilter> parameters = new()
         {
-            OnDialogResult = DialogService.CreateDialogCallback(this, HandleDialog),
-            ShowTitle = false,
-            ShowDismiss = false,
-            
-            Width = "600px",
-            Height = "100px",
+            OnDialogResult = DialogService.CreateDialogCallback(this, HandleFilterDialog),
+            Title=title,
+            Alignment = Fluent.HorizontalAlignment.Right,
+
+            //Width = "600px",
+            //Height = "100px",
             Content = entry,
-            TrapFocus = true,
-            Modal = true,
+            //TrapFocus = true,
+            //Modal = true,
             PrimaryAction = null,
             SecondaryAction = null,
         };
-        DialogService.ShowDialog<FilterDialog, LogFilter>(parameters);
+        DialogService.ShowPanel<FilterDialog, LogFilter>(parameters);
     }
 
-    private async Task HandleDialog(Fluent.DialogResult result)
+    private async Task HandleFilterDialog(Fluent.DialogResult result)
     {
         if (result.Data is not null)
         {

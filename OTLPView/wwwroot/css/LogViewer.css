@@ -27,11 +27,3 @@
     padding: 4px;
 }
 
-.fluent-dialog-body {
-    height: 100% !important;
-}
-
-.fluent-dialog-footer-normal {
-    height: 0px !important;
-    display: none !important;
-}

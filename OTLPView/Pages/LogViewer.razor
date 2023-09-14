@@ -10,28 +10,31 @@
 }
 else
 {
-         <FluentStack>
-                @if (_logFilters.Count == 0)
-                {
-                    <span>No Filters</span>
-                }
-                else
-                {
-                    foreach (var filter in _logFilters)
-                    {
-                        <FluentButton Appearance="Appearance.Outline" OnClick="() => OpenFilter(filter)">@filter.FilterText</FluentButton>
-                    }
-                }
-        <FluentButton Appearance="Appearance.Stealth"  aria-label="Add Filter" OnClick="()=>OpenFilter(null)"><FluentIcon Value="@(new Icons.Regular.Size16.Filter())" /></FluentButton>
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel>Filters: </FluentLabel>
+        @if (_logFilters.Count == 0)
+        {
+            <span>No Filters</span>
+        }
+        else
+        {
+            foreach (var filter in _logFilters)
+            {
+                <FluentButton Appearance="Appearance.Outline" OnClick="() => OpenFilter(filter)">@filter.FilterText</FluentButton>
+            }
+        }
+        <FluentButton Appearance="Appearance.Stealth" aria-label="Add Filter" OnClick="()=>OpenFilter(null)"><FluentIcon Value="@(new Icons.Regular.Size16.Filter())" /></FluentButton>
     </FluentStack>
-    <FluentDataGrid Items="@(_logEntries)" ResizableColumns=true Pagination="@pagination">
-            <PropertyColumn Title="Application" Property="@(context =>context.Application.ShortApplicationName.HtmlEncode())"  />
-            <PropertyColumn Title="Severity" Property="@(context =>context.Severity)" />
-            <PropertyColumn Title="Timestamp" Property="@(context =>context.TimeStamp.ToLocalTime().ToLongTimeString())" />
-            <PropertyColumn Title="Format" Property="@(context =>context.OriginalFormat)" />
-            <PropertyColumn Title="Span"Property="@(context =>context.SpanId)" />
-            <PropertyColumn Title="Trace Id" Property="@(context =>context.TraceId)" />
-             
+    <FluentDataGrid Items="@(_logEntries)" ResizableColumns=true Pagination="@pagination" GridTemplateColumns="0.1fr 0.1fr 0.1fr 1fr 0.2fr 0.3fr 0.03fr">
+        <PropertyColumn Title="Application" Property="@(context =>context.Application.ShortApplicationName.HtmlEncode())" />
+        <PropertyColumn Title="Severity" Property="@(context =>context.Severity)" />
+        <PropertyColumn Title="Timestamp" Property="@(context =>context.TimeStamp.ToLocalTime().ToLongTimeString())" />
+        <PropertyColumn Title="Format" Property="@(context =>context.OriginalFormat)" />
+        <PropertyColumn Title="Span" Property="@(context =>context.SpanId)" />
+        <PropertyColumn Title="Trace Id" Property="@(context =>context.TraceId)" />
+        <TemplateColumn>
+            <FluentButton Appearance="Appearance.Stealth" aria-label="Details" OnClick="()=>OnShowProperties(context)"><FluentIcon Value="@(new Icons.Regular.Size20.AppsListDetail())" /></FluentButton>
+        </TemplateColumn>
     </FluentDataGrid>
     <FluentPaginator State="@pagination" />
 }
@@ -67,7 +70,7 @@ else
             <MudTh>Properties</MudTh>
     </HeaderContent>*@
 
-            @*
+@*
                     <MudMenu ActivationEvent="@MouseEvent.RightClick">
         <ActivatorContent>
             <MudText>@context.TraceId</MudText>

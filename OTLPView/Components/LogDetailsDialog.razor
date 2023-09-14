@@ -1,0 +1,22 @@
+@using Microsoft.Fast.Components.FluentUI;
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="8">
+    <table>
+        <thead>
+        <td>Property</td>
+            <td>Value</td>
+        </thead>
+        <tbody>
+@foreach (var item in Content)
+{
+                <tr>
+                    <td>@item.Key</td>
+                    <td class="code">@item.Value</td>
+                </tr>
+}
+        </tbody>
+    </table>
+    <FluentButton OnClick="Close">Close</FluentButton>
+
+</FluentStack>
+

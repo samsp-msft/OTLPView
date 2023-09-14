@@ -78,7 +78,7 @@ public class OtlpLogEntry
     {
         var props = new Dictionary<string, string>();
         props.Add("Application", Application.UniqueApplicationName);
-        props.Add("Flags", Message);
+        props.Add("Flags", Flags.ToString());
         props.Add("Severity", Severity.ToString());
         props.Add("TraceId", TraceId);
         props.Add("SpanId", SpanId);

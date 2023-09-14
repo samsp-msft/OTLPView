@@ -7,7 +7,7 @@ public class LogFilter
     public string Field { get; set; }
     public FilterCondition Condition { get; set; }
     public string Value { get; set; }
-     public string FilterText => $"{Field} {ConditionToString(Condition)} {Value}";
+    public string FilterText => $"{Field} {ConditionToString(Condition)} {Value}";
 
     public static string ConditionToString(FilterCondition c) =>
         c switch
@@ -28,13 +28,13 @@ public class LogFilter
         c switch
         {
             FilterCondition.Equals => (a, b) => a == b,
-            FilterCondition.Contains => (a, b) => a.Contains(b),
+            FilterCondition.Contains => (a, b) => a != null && a.Contains(b),
             // Condition.GreaterThan => (a, b) => a > b,
             // Condition.LessThan => (a, b) => a < b,
             // Condition.GreaterThanOrEqual => (a, b) => a >= b,
             // Condition.LessThanOrEqual => (a, b) => a <= b,
             FilterCondition.NotEqual => (a, b) => a != b,
-            FilterCondition.NotContains => (a, b) => !a.Contains(b),
+            FilterCondition.NotContains => (a, b) => a != null && !a.Contains(b),
             _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
         };
 
