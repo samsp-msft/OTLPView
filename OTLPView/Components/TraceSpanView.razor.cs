@@ -1,6 +1,6 @@
 using OTLPView.DataModel;
 
-namespace OTLPView.Shared;
+namespace OTLPView.Components;
 
 public sealed partial class TraceSpanView
 {
@@ -44,7 +44,7 @@ public sealed partial class TraceSpanView
 
     private void UpdateSelection() => state.SelectedSpan = Span;
 
-    string BarColor => (state.SelectedSpan == Span) ? "#4D5788" : Span.TraceScope.BarColor;
+   public string BarColor => (state.SelectedSpan == Span) ? "#4D5788" : Span.TraceScope.BarColor;
 }
 
 

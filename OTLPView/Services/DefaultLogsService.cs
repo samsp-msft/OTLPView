@@ -41,7 +41,7 @@ public class DefaultLogsService : LogsService.LogsServiceBase
                 foreach (var record in log.LogRecords)
                 {
                     var logEntry = new OtlpLogEntry(record, logApp);
-                    _telemetryResults.Logs.Add(logEntry);
+                    _telemetryResults.Logs.Append(logEntry);
                     foreach (var key in logEntry.Properties.Keys)
                     {
                         _telemetryResults.LogPropertyKeys.GetOrAdd(key.GetHashCode(), key);

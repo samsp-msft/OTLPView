@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@using MudBlazor
+
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
@@ -24,6 +26,7 @@
         @Body
     </MudMainContent>
 </MudLayout>
+      <Microsoft.Fast.Components.FluentUI.FluentDialogProvider />
 @code {
     bool _drawerOpen = true;
     private bool _isDarkMode;
@@ -43,3 +46,51 @@
         _drawerOpen = !_drawerOpen;
     }
 }
+
+@* <FluentLayout>
+    <FluentHeader Style="margin-top: 10px;">
+        <FluentButton Appearance="Appearance.Stealth" aria-label="Details" ><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" /></FluentButton>
+
+        <FluentLabel Typo="Typography.PageTitle">OTLP View</FluentLabel>
+        <FluentSpacer />
+
+        <FluentButton IconEnd="@(new Icons.Regular.Size16.Globe())"
+                      Title="Globe"
+                      OnClick="@(() => DemoLogger.WriteLine("Button clicked"))" />
+
+        <FluentSwitch @bind-Value=@_isDarkMode>
+            Dark Mode
+        </FluentSwitch>
+        <FluentAnchor Href="https://github.com/samsp-msft/OTLPView">
+            GitHub
+             <FluentIcon Icon="Icons.Regular.Size32.Globe" Color="@Color.Accent" Slot="end" />
+        </FluentAnchor>
+    </FluentHeader>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</FluentLayout>
+<Microsoft.Fast.Components.FluentUI.FluentDialogProvider />
+@code {
+    bool _drawerOpen = true;
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
+    }
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}
+ *@

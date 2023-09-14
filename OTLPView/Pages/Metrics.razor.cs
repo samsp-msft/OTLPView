@@ -33,6 +33,7 @@ public sealed partial class Metrics
                 State.SelectedApp = TelemetryResults.Applications.Values.First();
             }
         }
+        
     }
 
     public void UpdateSelectedMeter()
@@ -86,6 +87,14 @@ public sealed partial class Metrics
         if (item is Counter counter)
         {
             State.SelectedMetric = counter;
+        }
+    }
+
+    public void SelectedAppChanged(object item)
+    {
+        if (item is OtlpApplication app)
+        {
+            State.SelectedApp = app;
         }
     }
 }

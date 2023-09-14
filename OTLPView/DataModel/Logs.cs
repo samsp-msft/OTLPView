@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authentication;
+
 namespace OTLPView.DataModel;
 
 public class OtlpLogEntry
 {
     public Dictionary<string, string> Properties { get; init; }
     public DateTime TimeStamp { get; init; }
-    public uint flags { get; init; }
+    public uint Flags { get; init; }
     public LogLevel Severity { get; init; }
     public string Message { get; init; }
     public string SpanId { get; init; }
@@ -34,7 +36,7 @@ public class OtlpLogEntry
         Properties = properties;
 
         TimeStamp = Helpers.UnixNanoSecondsToDateTime(record.TimeUnixNano);
-        flags = record.Flags;
+        Flags = record.Flags;
         Severity = MapSeverity(record.SeverityNumber);
 
         Message = record.Body.ValueString();
@@ -71,4 +73,21 @@ public class OtlpLogEntry
         SeverityNumber.Fatal4 => LogLevel.Critical,
         _ => LogLevel.None
     };
+
+    public Dictionary<string, string> AllProperties()
+    {
+        var props = new Dictionary<string, string>();
+        props.Add("Application", Application.UniqueApplicationName);
+        props.Add("Flags", Flags.ToString());
+        props.Add("Severity", Severity.ToString());
+        props.Add("TraceId", TraceId);
+        props.Add("SpanId", SpanId);
+        props.Add("ParentId", ParentId);
+        props.Add("OriginalFormat", OriginalFormat);
+
+        foreach (var kv in Properties) { props.Add(kv.Key, kv.Value); }
+
+        return props;
+    }
 }
+
