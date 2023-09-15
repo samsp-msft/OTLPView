@@ -15,8 +15,8 @@ public sealed partial class DimensionedCounterView
     private IJSRuntime JSRuntime { get; set; }
 
     private DimensionScope _dimension;
-    private string[] chartLabels;
-    private List<ChartSeries> chartValues;
+    //private string[] chartLabels;
+    //private List<ChartSeries> chartValues;
     private readonly int _instanceID = ++lastId;
 
     private double[] _chartLabels;
@@ -29,14 +29,14 @@ public sealed partial class DimensionedCounterView
         set
         {
             _dimension = value;
-            chartValues = new List<ChartSeries>()
-            {
-                new ChartSeries()
-                {
-                    Name = Counter?.CounterName ?? "unknown",
-                    Data = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE)
-                }
-            };
+            //chartValues = new List<ChartSeries>()
+            //{
+            //    new ChartSeries()
+            //    {
+            //        Name = Counter?.CounterName ?? "unknown",
+            //        Data = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE)
+            //    }
+            //};
             _chartValues = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
         }
     }
@@ -46,20 +46,20 @@ public sealed partial class DimensionedCounterView
 
     protected override void OnInitialized()
     {
-        chartLabels = CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
+        //chartLabels = CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
         _chartLabels = _CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
     }
 
-    private string[] CalcLabels(int pointCount, int pointSize)
-    {
-        var duration = pointSize * pointCount;
-        var labels = new string[pointCount];
-        for (var i = 0; i < pointCount; i++)
-        {
-            labels[i] = (i < pointCount - 1) ? $"{(pointSize * (i + 1)) - duration}s" : "Now";
-        }
-        return labels;
-    }
+    //private string[] CalcLabels(int pointCount, int pointSize)
+    //{
+    //    var duration = pointSize * pointCount;
+    //    var labels = new string[pointCount];
+    //    for (var i = 0; i < pointCount; i++)
+    //    {
+    //        labels[i] = (i < pointCount - 1) ? $"{(pointSize * (i + 1)) - duration}s" : "Now";
+    //    }
+    //    return labels;
+    //}
 
     private double[] _CalcLabels(int pointCount, int pointSize)
     {
@@ -127,7 +127,16 @@ public sealed partial class DimensionedCounterView
               type= "scatter"
             } };
 
-        await JSRuntime.InvokeVoidAsync("Plotly.newPlot", $"lineChart{_instanceID}", data);
+        var layout = new {
+            title = Counter?.CounterName ?? "unknown",
+            showlegend = false,
+            xaxis = new {
+                title = "Time (s)"
+            }
+        };
+        var options = new { staticPlot = true };
+
+        await JSRuntime.InvokeVoidAsync("Plotly.newPlot", $"lineChart{_instanceID}", data, layout, options);
     }
 
     RenderFragment _graph => (builder) =>

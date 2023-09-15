@@ -25,7 +25,7 @@
         <MudCardContent>
             <MudStack>
                 <MudPaper>
-                    <MudChart ChartType="ChartType.Bar" ChartSeries="@_chartValues" XAxisLabels="@_chartLabels" Width="500x" Height="400px"></MudChart>
+                    @(_graph)
                 </MudPaper>
                 <MudPaper>
                     <MudTable Items="@Dimension._values" Dense="true">
