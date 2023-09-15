@@ -1,15 +1,26 @@
+using Microsoft.JSInterop;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace OTLPView.Components;
 
 public sealed partial class DimensionedCounterView
 {
+    static int lastId = 0;
+
     // Define the size of the graph based on the number of points and the duration of each point
     private const int GRAPH_POINT_COUNT = 18; // 3 minutes
     private const int GRAPH_POINT_SIZE = 10; // 10s
 
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
 
     private DimensionScope _dimension;
     private string[] chartLabels;
     private List<ChartSeries> chartValues;
+    private readonly int _instanceID = ++lastId;
+
+    private double[] _chartLabels;
+    private double[] _chartValues;
 
     [Parameter, EditorRequired]
     public required DimensionScope Dimension
@@ -26,6 +37,7 @@ public sealed partial class DimensionedCounterView
                     Data = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE)
                 }
             };
+            _chartValues = CalcChartValues(_dimension, GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
         }
     }
 
@@ -35,6 +47,7 @@ public sealed partial class DimensionedCounterView
     protected override void OnInitialized()
     {
         chartLabels = CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
+        _chartLabels = _CalcLabels(GRAPH_POINT_COUNT, GRAPH_POINT_SIZE);
     }
 
     private string[] CalcLabels(int pointCount, int pointSize)
@@ -48,6 +61,17 @@ public sealed partial class DimensionedCounterView
         return labels;
     }
 
+    private double[] _CalcLabels(int pointCount, int pointSize)
+    {
+        var duration = pointSize * pointCount;
+        var labels = new double[pointCount];
+        for (var i = 0; i < pointCount; i++)
+        {
+            labels[i] = (pointSize * (i + 1)) - duration;
+        }
+        return labels;
+    }
+
     // Graph is not based on x,y coordinates, but rather a series of data points with a value
     // Each point in the graph is the max value of all the values in that point's time range
     private double[] CalcChartValues(DimensionScope dimension, int pointCount, int pointSize)
@@ -57,11 +81,11 @@ public sealed partial class DimensionedCounterView
         var now = DateTime.UtcNow;
         foreach (var point in dimension.Values)
         {
-            var start = CalcOffset(now-point.Start, pointCount, pointSize);
-            var end = CalcOffset(now-point.End, pointCount, pointSize);
+            var start = CalcOffset(now - point.Start, pointCount, pointSize);
+            var end = CalcOffset(now - point.End, pointCount, pointSize);
             if (start is not null && end is not null)
             {
-                for (var i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(pointCount-1); i++)
+                for (var i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(pointCount - 1); i++)
                 {
                     values[i] = point switch
                     {
@@ -95,6 +119,21 @@ public sealed partial class DimensionedCounterView
         return values;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var data = new[]{ new {
+              x= _chartLabels,
+              y= _chartValues,
+              type= "scatter"
+            } };
 
+        await JSRuntime.InvokeVoidAsync("Plotly.newPlot", $"lineChart{_instanceID}", data);
+    }
 
+    RenderFragment _graph => (builder) =>
+        {
+            builder.AddMarkupContent(0, $$"""
+      <div id="lineChart{{_instanceID}}" style="width:500px; height:400px"></div>
+""");
+        };
 }

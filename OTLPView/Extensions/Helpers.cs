@@ -109,6 +109,12 @@ public static class Helpers
         return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds).DateTime;
     }
 
+    public static string ToJSArray(this double[] values) =>
+        $"[{string.Join(",", values)}]";
+
+    public static string ToJSArray(this string[] values) =>
+    $"['{string.Join("','", values)}']";
+
     public static string ToHexString(this Google.Protobuf.ByteString bytes)
     {
         if (bytes is null or { Length: 0 })
