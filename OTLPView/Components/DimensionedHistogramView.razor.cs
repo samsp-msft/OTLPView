@@ -28,14 +28,6 @@ public sealed partial class DimensionedHistogramView
         {
             _dimension = value;
             _chartLabels = CalcLabels((Dimension.Values?.First() as HistogramValue).ExplicitBounds);
-            //_chartValues = new List<ChartSeries>()
-            //{
-            //    new ChartSeries()
-            //    {
-            //        Name = Counter?.CounterName ?? "unknown",
-            //        Data = (Dimension.Values.First() as HistogramValue).Values.Select(v => (double)v).ToArray()
-            //    }
-            //};
             _chartValues = (Dimension.Values.First() as HistogramValue).Values.Select(v => (double)v).ToArray();
         }
     }
@@ -43,16 +35,18 @@ public sealed partial class DimensionedHistogramView
     [Parameter, EditorRequired]
     public required Counter Counter { get; set; }
 
+    private string chartDivId => $"barChart{_instanceID}";
+
     protected override void OnInitialized()
     {
     }
 
     private string[] CalcLabels(double[] bounds)
     {
-        var labels = new string[bounds.Length+1];
+        var labels = new string[bounds.Length + 1];
         for (var i = 0; i < bounds.Length; i++)
         {
-            labels[i] = $"{bounds[i]}{Counter.CounterUnit??"s"}";
+            labels[i] = $"{bounds[i]}{Counter.CounterUnit ?? "s"}";
         }
         labels[bounds.Length] = "Inf";
         return labels;
@@ -67,11 +61,11 @@ public sealed partial class DimensionedHistogramView
         var now = DateTime.UtcNow;
         foreach (var point in dimension.Values)
         {
-            var start = CalcOffset(now-point.Start, pointCount, pointSize);
-            var end = CalcOffset(now-point.End, pointCount, pointSize);
+            var start = CalcOffset(now - point.Start, pointCount, pointSize);
+            var end = CalcOffset(now - point.End, pointCount, pointSize);
             if (start is not null && end is not null)
             {
-                for (var i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(pointCount-1); i++)
+                for (var i = start.GetValueOrDefault(0); i <= end.GetValueOrDefault(pointCount - 1); i++)
                 {
                     values[i] = point switch
                     {
@@ -117,18 +111,11 @@ public sealed partial class DimensionedHistogramView
             title = Counter?.CounterName ?? "unknown",
             showlegend = false,
             xaxis = new {
-                title = "Time (s)"
+                title = $"Time ({Counter?.CounterUnit})"
             }
         };
         var options = new { staticPlot = true };
 
-        await JSRuntime.InvokeVoidAsync("Plotly.newPlot", $"barChart{_instanceID}", data, layout, options);
+        await JSRuntime.InvokeVoidAsync("Plotly.newPlot", chartDivId, data, layout, options);
     }
-
-    RenderFragment _graph => (builder) =>
-    {
-        builder.AddMarkupContent(0, $$"""
-      <div id="barChart{{_instanceID}}" style="width:800px; height:400px"></div>
-""");
-    };
 }

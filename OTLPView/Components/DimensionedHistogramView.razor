@@ -25,7 +25,7 @@
         <MudCardContent>
             <MudStack>
                 <MudPaper>
-                    @(_graph)
+                    <div id="@chartDivId" style="width:800px; height:400px"></div>
                 </MudPaper>
                 <MudPaper>
                     <MudTable Items="@Dimension._values" Dense="true">
